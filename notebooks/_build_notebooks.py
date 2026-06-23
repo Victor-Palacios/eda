@@ -67,12 +67,6 @@ def setup_cells(title: str, subtitle: str) -> list[dict]:
     """
     return [
         md(f"# {title}\n\n## {subtitle}"),
-        md(
-            "**Tip for instructors:** if the code editor or output text is "
-            "still small for your room, use browser zoom (Ctrl/Cmd + `+`) "
-            "or bump *Settings → Theme → Increase Code Font Size* in "
-            "JupyterLab. Markdown text is already enlarged inline."
-        ),
         md("### Imports"),
         code(
             "import pandas as pd\n"
@@ -171,8 +165,14 @@ simpsons_cells = (
             "the treatment performs better. **The group variable flips the "
             "story.**"
         ),
-        md("## 1. Load the trial data\n\nRows are patients; columns are risk group, treatment arm, and outcome."),
-        code('trial = pd.read_csv("../data/simpsons_paradox_treatment.csv")\ntrial.head()'),
+        md(
+            "## 1. Load the trial data\n\n"
+            "The file is an Excel workbook. `pd.read_excel()` opens it the "
+            "same way `pd.read_csv()` opens a CSV — you point it at a path "
+            "and get back a DataFrame. (Behind the scenes pandas uses the "
+            "`openpyxl` engine for `.xlsx` files.)"
+        ),
+        code('trial = pd.read_excel("../data/simpsons_paradox_treatment.xlsx")\ntrial.head()'),
         code("trial.info()"),
         md("## 2. Inspect the key columns\n\nIdentify the comparison, the outcome, and the possible confounder."),
         code('trial[["risk_group", "treatment_arm", "success"]].head()'),
@@ -252,8 +252,13 @@ survivorship_cells = (
             "you only analyze survivors, you are studying winners and "
             "calling it the population."
         ),
-        md("## 1. Load the startup dataset"),
-        code('startups = pd.read_csv("../data/startup_survivorship.csv")\nstartups.head()'),
+        md(
+            "## 1. Load the startup dataset\n\n"
+            "This file is JSON — common when data comes from a web API. We "
+            "wrote it in *records* orientation (a list of row-dicts), so we "
+            "pass `orient='records'` to `pd.read_json()` to read it back."
+        ),
+        code('startups = pd.read_json("../data/startup_survivorship.json", orient="records")\nstartups.head()'),
         code("startups.info()"),
         md("## 2. Missingness map with `df.isna()`\n\n`isna()` creates a True/False map of missingness."),
         code("startups.isna().head()"),
@@ -348,8 +353,15 @@ whales_cells = (
             "lot. The 'average player' may not exist. Removing outliers "
             "here would delete the business model."
         ),
-        md("## 1. Load the gaming dataset\n\nRows are players; columns include spend, sessions, and segment."),
-        code('game = pd.read_csv("../data/gaming_outliers.csv")\ngame.head()'),
+        md(
+            "## 1. Load the gaming dataset\n\n"
+            "Rows are players; columns include spend, sessions, and segment. "
+            "The file is in **Parquet** — a columnar binary format common in "
+            "modern data lakes. `pd.read_parquet()` reads it just like CSV, "
+            "but loads much faster and preserves dtypes exactly. (Requires "
+            "the `pyarrow` package.)"
+        ),
+        code('game = pd.read_parquet("../data/gaming_outliers.parquet")\ngame.head()'),
         code("game.info()"),
         md(
             "## 2. Distribution snapshot with `df.describe()`\n\n"
@@ -442,8 +454,14 @@ collider_cells = (
             "can look very different — even reversed — compared to the full "
             "applicant pool. The doorway distorts the evidence."
         ),
-        md("## 1. Load the admissions data\n\nOpen the file and ask whether it is the full pool or a selected subset."),
-        code('apps = pd.read_csv("../data/collider_admissions.csv")\napps.head()'),
+        md(
+            "## 1. Load the admissions data\n\n"
+            "Open the file and ask whether it is the full pool or a selected "
+            "subset. This file is in **Feather** — Apache Arrow's on-disk "
+            "format, useful for fast interchange between Python and R. "
+            "`pd.read_feather()` returns a DataFrame just like `read_csv`."
+        ),
+        code('apps = pd.read_feather("../data/collider_admissions.feather")\napps.head()'),
         code("apps.info()"),
         md("## 2. Find the selection clue\n\nA source or status column often reveals how rows entered the table."),
         code('apps["data_source"].value_counts()'),
@@ -545,8 +563,16 @@ rtm_cells = (
             "mean** — extremes drift back toward average just because of "
             "measurement noise."
         ),
-        md("## 1. Load the score dataset\n\nRows are students with baseline, follow-up, and change."),
-        code('scores = pd.read_csv("../data/regression_to_mean_scores.csv")\nscores.head()'),
+        md(
+            "## 1. Load the score dataset\n\n"
+            "Rows are students with baseline, follow-up, and change. The "
+            "file is a **pickle** — Python's native serialization format, "
+            "saved with `df.to_pickle(...)`. `pd.read_pickle()` is the "
+            "fastest round-trip for Python-only workflows.\n\n"
+            "*Security note:* never unpickle files from untrusted sources — "
+            "pickles can execute arbitrary code on load."
+        ),
+        code('scores = pd.read_pickle("../data/regression_to_mean_scores.pkl")\nscores.head()'),
         code("scores.info()"),
         md("## 2. Find extremes with `df.sort_values()`\n\nSorting reveals the selected extremes."),
         code('lowest = scores.sort_values("baseline_score").head(20)\nlowest'),
@@ -645,8 +671,14 @@ misleading_cells = (
             "*happen after* churn (`refund_after_churn`). The latter look "
             "powerfully predictive, but they leak the answer."
         ),
-        md("## 1. Load the churn dataset"),
-        code('churn = pd.read_csv("../data/misleading_variables_churn.csv")\nchurn.head()'),
+        md(
+            "## 1. Load the churn dataset\n\n"
+            "This file is an **HTML table** — the kind of thing you might "
+            "scrape from a web page. `pd.read_html()` parses every `<table>` "
+            "it finds and returns a **list of DataFrames**, so we take the "
+            "first one with `[0]`."
+        ),
+        code('churn = pd.read_html("../data/misleading_variables_churn.html")[0]\nchurn.head()'),
         code("churn.info()"),
         md(
             "## 2. Column audit with `df.columns`\n\n"
@@ -763,7 +795,7 @@ def strip_mini_labs(cells: list[dict]) -> list[dict]:
 def hoist_takeaway(cells: list[dict]) -> list[dict]:
     """Move the Takeaway markdown cell to the top, right after the title.
 
-    Each module ends with a markdown cell whose source begins with
+    Each module ends with a markdown cell whose body begins with
     `## Takeaway` (functions introduced + concept learned). Surface that
     summary as the first thing students see, so the punchline is up front.
     """
@@ -772,7 +804,10 @@ def hoist_takeaway(cells: list[dict]) -> list[dict]:
     for i, cell in enumerate(cells):
         if cell["cell_type"] != "markdown":
             continue
-        first_line = "".join(cell["source"]).lstrip().splitlines()[0] if cell["source"] else ""
+        src = "".join(cell["source"])
+        # Strip the div wrapper to inspect the real markdown body.
+        body = src.replace(MD_WRAP_OPEN, "").lstrip()
+        first_line = body.splitlines()[0] if body else ""
         if first_line.startswith("## Takeaway"):
             takeaway_idx = i
             break

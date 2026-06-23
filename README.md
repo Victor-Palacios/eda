@@ -49,12 +49,30 @@ python notebooks/_build_notebooks.py
 
 ## Coverage
 
-| Bias | Dataset | Notebook |
-|---|---|---|
-| Datasaurus / always plot | `data/always_plot_demo.csv` | `01_datasaurus_always_plot.ipynb` |
-| Simpson's Paradox | `data/simpsons_paradox_treatment.csv` | `02_simpsons_paradox.ipynb` |
-| Survivorship bias | `data/startup_survivorship.csv` | `03_survivorship_bias.ipynb` |
-| Gaming whales / outliers | `data/gaming_outliers.csv` | `04_gaming_whales_outliers.ipynb` |
-| Collider bias | `data/collider_admissions.csv` | `05_collider_bias.ipynb` |
-| Regression to the mean | `data/regression_to_mean_scores.csv` | `06_regression_to_mean.ipynb` |
-| Misleading variables / leakage | `data/misleading_variables_churn.csv` | `07_misleading_variables.ipynb` |
+Each notebook opens with a **different** pandas reader so students see
+the breadth of formats pandas can handle. Datasaurus stays on CSV as
+the baseline.
+
+| Bias | Dataset | Reader | Notebook |
+|---|---|---|---|
+| Datasaurus / always plot | `data/always_plot_demo.csv` | `pd.read_csv` | `01_datasaurus_always_plot.ipynb` |
+| Simpson's Paradox | `data/simpsons_paradox_treatment.xlsx` | `pd.read_excel` | `02_simpsons_paradox.ipynb` |
+| Survivorship bias | `data/startup_survivorship.json` | `pd.read_json` | `03_survivorship_bias.ipynb` |
+| Gaming whales / outliers | `data/gaming_outliers.parquet` | `pd.read_parquet` | `04_gaming_whales_outliers.ipynb` |
+| Collider bias | `data/collider_admissions.feather` | `pd.read_feather` | `05_collider_bias.ipynb` |
+| Regression to the mean | `data/regression_to_mean_scores.pkl` | `pd.read_pickle` | `06_regression_to_mean.ipynb` |
+| Misleading variables / leakage | `data/misleading_variables_churn.html` | `pd.read_html` | `07_misleading_variables.ipynb` |
+
+A CSV copy of `misleading_variables_churn` is also kept under `data/`
+because notebooks 03 and 06 reference it as a secondary example.
+
+### Extra dependencies
+
+Beyond `pandas` and `matplotlib`, the varied formats need:
+
+```bash
+pip install openpyxl pyarrow lxml html5lib
+```
+
+(`openpyxl` for `.xlsx`, `pyarrow` for Parquet/Feather, `lxml` +
+`html5lib` for `read_html`. JSON, pickle, and CSV are built into pandas.)

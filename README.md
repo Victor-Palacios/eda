@@ -13,6 +13,9 @@ notebooks/                 one notebook per bias type
   02_simpsons_paradox.ipynb
   03_survivorship_bias.ipynb
   04_gaming_whales_outliers.ipynb
+  05_collider_bias.ipynb
+  06_regression_to_mean.ipynb
+  07_misleading_variables.ipynb
   _build_notebooks.py      generator script (re-run to rebuild notebooks)
 ```
 
@@ -36,7 +39,7 @@ edit the script, regenerate with:
 python notebooks/_build_notebooks.py
 ```
 
-## Coverage so far
+## Coverage
 
 | Bias | Dataset | Notebook |
 |---|---|---|
@@ -44,7 +47,6 @@ python notebooks/_build_notebooks.py
 | Simpson's Paradox | `data/simpsons_paradox_treatment.csv` | `02_simpsons_paradox.ipynb` |
 | Survivorship bias | `data/startup_survivorship.csv` | `03_survivorship_bias.ipynb` |
 | Gaming whales / outliers | `data/gaming_outliers.csv` | `04_gaming_whales_outliers.ipynb` |
-
-Additional bias modules from the slide deck (collider bias, regression to
-the mean, misleading variables, capstone) can be added once their CSVs are
-available — drop them into `data/` and extend `_build_notebooks.py`.
+| Collider bias | `data/collider_admissions.csv` | `05_collider_bias.ipynb` |
+| Regression to the mean | `data/regression_to_mean_scores.csv` | `06_regression_to_mean.ipynb` |
+| Misleading variables / leakage | `data/misleading_variables_churn.csv` | `07_misleading_variables.ipynb` |

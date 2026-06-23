@@ -449,11 +449,314 @@ whales_cells = (
 )
 
 
+# ---------------------------------------------------------------------------
+# Notebook 5: Collider Bias
+# ---------------------------------------------------------------------------
+collider_cells = (
+    setup_cells(
+        "Collider Bias: Selection Changes the Evidence",
+        "A dataset is not just data — it is the result of a selection process",
+    )
+    + [
+        md(
+            "## The story\n\n"
+            "Applicants are selected using ability **and** portfolio. Inside "
+            "admitted students, the relationship between those two variables "
+            "can look very different — even reversed — compared to the full "
+            "applicant pool. The doorway distorts the evidence."
+        ),
+        md("## 1. Load the admissions data\n\nOpen the file and ask whether it is the full pool or a selected subset."),
+        code('apps = pd.read_csv("../data/collider_admissions.csv")\napps.head()'),
+        code("apps.info()"),
+        md("## 2. Find the selection clue\n\nA source or status column often reveals how rows entered the table."),
+        code('apps["data_source"].value_counts()'),
+        code('apps["admitted"].value_counts()'),
+        md(
+            "## 3. Filter with `df.query()`\n\n"
+            "`query()` is the most readable way to express many row-selection "
+            "stories."
+        ),
+        code(
+            'admitted = apps.query("admitted == True")\n'
+            'not_admitted = apps.query("admitted == False")\n'
+            'admitted.shape, not_admitted.shape'
+        ),
+        md(
+            "## 4. Compare full vs. selected\n\n"
+            "Now look at the correlation between ability and portfolio in "
+            "the full pool, then inside the admitted subset."
+        ),
+        code('apps[["ability", "portfolio_score"]].corr()'),
+        code('admitted[["ability", "portfolio_score"]].corr()'),
+        md(
+            "Notice the correlation flips sign or weakens dramatically. "
+            "That is collider bias in action — conditioning on `admitted` "
+            "induced a relationship that was not there in the full pool."
+        ),
+        md("## 5. Visualize it"),
+        code(
+            'fig, axes = plt.subplots(1, 2, figsize=(12, 5))\n'
+            'apps.plot(kind="scatter", x="ability", y="portfolio_score",\n'
+            '          ax=axes[0], title="All applicants", alpha=0.4)\n'
+            'admitted.plot(kind="scatter", x="ability", y="portfolio_score",\n'
+            '              ax=axes[1], title="Admitted only", alpha=0.4, color="C1")\n'
+            'plt.tight_layout()\n'
+            'plt.show()'
+        ),
+        md(
+            "## 6. Compound conditions\n\n"
+            "Real selection rules often combine multiple conditions."
+        ),
+        code('apps.query("admitted == True and ability > 0").shape'),
+        code('apps.query("portfolio_score > 1 or ability > 1").shape'),
+        md(
+            "## 7. Column selection with `df.loc[]`\n\n"
+            "`loc` selects by labels: rows by condition, columns by name."
+        ),
+        code('apps.loc[:, ["ability", "portfolio_score", "admitted"]].head()'),
+        md("## 8. Rows and columns together with `loc`"),
+        code('apps.loc[apps["admitted"] == True, ["ability", "portfolio_score"]].head()'),
+        md(
+            "## 9. Position selection with `df.iloc[]`\n\n"
+            "`iloc` is for quick position-based checks."
+        ),
+        code("apps.iloc[:5, :4]"),
+        md(
+            "## Mini-lab: recreate the bias\n\n"
+            "Compute correlations before and after selection."
+        ),
+        code(
+            'full_corr = apps[["ability", "portfolio_score"]].corr()\n'
+            'selected_corr = apps.query("admitted == True")[["ability", "portfolio_score"]].corr()\n'
+            'print("Full pool correlation:")\n'
+            'print(full_corr)\n'
+            'print("\\nAdmitted-only correlation:")\n'
+            'print(selected_corr)'
+        ),
+        md(
+            "## Collection questions\n\n"
+            "For every dataset, ask:\n\n"
+            "- Who was eligible?\n"
+            "- Who was actually measured?\n"
+            "- Who is absent?\n"
+            "- Who had to pass through a doorway to be here?\n\n"
+            "Real-world colliders: hospitals, elite schools, customer support "
+            "tickets, dating apps, product reviews, job interviews."
+        ),
+        md(
+            "## Takeaway\n\n"
+            "Functions introduced: `query`, `loc`, `iloc`.\n\n"
+            "**Concept learned: selection can invent or hide relationships.**"
+        ),
+    ]
+)
+
+# ---------------------------------------------------------------------------
+# Notebook 6: Regression to the Mean
+# ---------------------------------------------------------------------------
+rtm_cells = (
+    setup_cells(
+        "Regression to the Mean: Extremes Drift Back",
+        "Before/after stories are tempting — extreme baselines make them dangerous",
+    )
+    + [
+        md(
+            "## The story\n\n"
+            "Students with very low baseline scores tend to improve on a "
+            "follow-up test, even with no intervention. Students with very "
+            "high baseline scores tend to drop. This is **regression to the "
+            "mean** — extremes drift back toward average just because of "
+            "measurement noise."
+        ),
+        md("## 1. Load the score dataset\n\nRows are students with baseline, follow-up, and change."),
+        code('scores = pd.read_csv("../data/regression_to_mean_scores.csv")\nscores.head()'),
+        code("scores.info()"),
+        md("## 2. Find extremes with `df.sort_values()`\n\nSorting reveals the selected extremes."),
+        code('lowest = scores.sort_values("baseline_score").head(20)\nlowest'),
+        code('highest = scores.sort_values("baseline_score", ascending=False).head(20)\nhighest'),
+        md(
+            "## 3. Compare change in the extreme groups\n\n"
+            "If regression to the mean is at play, the lowest baselines "
+            "should *rise* on follow-up and the highest baselines should "
+            "*fall* — even without any intervention."
+        ),
+        code(
+            'low = scores.sort_values("baseline_score").head(100)\n'
+            'high = scores.sort_values("baseline_score").tail(100)\n'
+            'print(f"Avg change for 100 lowest baselines:  {low[\'change\'].mean():+.2f}")\n'
+            'print(f"Avg change for 100 highest baselines: {high[\'change\'].mean():+.2f}")'
+        ),
+        md(
+            "## 4. Build a both-tails group\n\n"
+            "Concatenate the two extreme tails to compare against the middle."
+        ),
+        code(
+            'extremes = pd.concat([\n'
+            '    scores.sort_values("baseline_score").head(60),\n'
+            '    scores.sort_values("baseline_score").tail(60),\n'
+            '])\n'
+            'extremes.shape'
+        ),
+        md("## 5. Visualize the drift"),
+        code(
+            'ax = scores.plot(kind="scatter", x="baseline_score", y="change",\n'
+            '                 alpha=0.3, title="Change vs. baseline score")\n'
+            'ax.axhline(0, color="red", linestyle="--")\n'
+            'plt.show()'
+        ),
+        md("Low baselines mostly rise; high baselines mostly fall. The line of zero change cuts diagonally through the cloud."),
+        md("## 6. Relationships with `df.corr()`\n\nCorrelation helps describe the link between baseline, follow-up, and change."),
+        code('scores[["baseline_score", "followup_score", "change"]].corr()'),
+        md(
+            "## 7. Change scores need suspicion\n\n"
+            "`change` is strongly negatively correlated with `baseline` "
+            "almost automatically: baseline includes random noise that "
+            "subtracts out in the change."
+        ),
+        code('scores[["baseline_score", "change"]].corr()'),
+        md(
+            "## 8. Dates with `pd.to_datetime()`\n\n"
+            "Before/after analyses often require real datetime columns. We "
+            "do not have a date here, but the same technique applies on the "
+            "churn dataset."
+        ),
+        code(
+            'churn = pd.read_csv("../data/misleading_variables_churn.csv")\n'
+            'churn["signup_date"] = pd.to_datetime(churn["signup_date"])\n'
+            'churn["signup_date"].dtype'
+        ),
+        md("## 9. Check the type after conversion"),
+        code('churn[["signup_date"]].dtypes'),
+        md("## Mini-lab: extremes drift"),
+        code(
+            'low = scores.sort_values("baseline_score").head(100)\n'
+            'high = scores.sort_values("baseline_score").tail(100)\n'
+            'print("Low baseline avg change:", round(low["change"].mean(), 2))\n'
+            'print("High baseline avg change:", round(high["change"].mean(), 2))'
+        ),
+        md(
+            "## Discussion\n\n"
+            "- If the lowest-scoring students improved after coaching, what "
+            "else must be true before claiming the intervention worked?\n"
+            "- What would a fair comparison group look like?\n\n"
+            "**Real-world examples:** bad sales months rebound, "
+            "career-best athletes decline, angry customers calm down, "
+            "extreme stores normalize."
+        ),
+        md(
+            "## Takeaway\n\n"
+            "Functions introduced: `sort_values`, `corr`, `pd.to_datetime`.\n\n"
+            "**Concept learned: extreme selection can make ordinary drift "
+            "look causal.**"
+        ),
+    ]
+)
+
+# ---------------------------------------------------------------------------
+# Notebook 7: Misleading Variables / Leakage
+# ---------------------------------------------------------------------------
+misleading_cells = (
+    setup_cells(
+        "Misleading Variables: Some Columns Are Traps",
+        "Cleanup is not housekeeping — it is deciding what evidence belongs",
+    )
+    + [
+        md(
+            "## The story\n\n"
+            "A churn dataset contains useful predictors (plan, tenure), "
+            "identifiers (`customer_id`), dates, and variables that "
+            "*happen after* churn (`refund_after_churn`). The latter look "
+            "powerfully predictive, but they leak the answer."
+        ),
+        md("## 1. Load the churn dataset"),
+        code('churn = pd.read_csv("../data/misleading_variables_churn.csv")\nchurn.head()'),
+        code("churn.info()"),
+        md(
+            "## 2. Column audit with `df.columns`\n\n"
+            "Ask whether each column is an **identifier**, **outcome**, "
+            "**predictor**, **date**, **proxy**, or **leak**."
+        ),
+        code("list(churn.columns)"),
+        md("## 3. Type audit with `df.dtypes`\n\nTypes reveal disguised dates, booleans, and numbers."),
+        code("churn.dtypes"),
+        md("## 4. Convert with `df.astype()`\n\nUse `astype()` when the intended type is clear."),
+        code('churn["churned"] = churn["churned"].astype("bool")\nchurn["churned"].dtype'),
+        md("## 5. Convert dates with `pd.to_datetime()`"),
+        code('churn["signup_date"] = pd.to_datetime(churn["signup_date"])\nchurn["signup_date"].dtype'),
+        md(
+            "## 6. Find suspicious correlations\n\n"
+            "A variable can look powerful because it leaks future information."
+        ),
+        code(
+            'numeric = churn.select_dtypes(include="number")\n'
+            'numeric.corr(numeric_only=True).round(3)'
+        ),
+        md(
+            "Pay special attention to anything that correlates strongly with "
+            "`churned`. Ask: *could this value have been known at decision "
+            "time, or is it a consequence of churn?*"
+        ),
+        md(
+            "## 7. Cross-check a suspect with the outcome\n\n"
+            "`refund_after_churn` smells like a leak — by name alone."
+        ),
+        code('pd.crosstab(churn["churned"], churn["refund_after_churn"])'),
+        md("If refunds only happen *after* churn, this column can perfectly predict the outcome — but only because the outcome already happened."),
+        md(
+            "## 8. Drop columns with `df.drop()`\n\n"
+            "Dropping columns is an **analytical decision** that should be "
+            "explained, not a default cleanup step."
+        ),
+        code(
+            'safe = churn.drop(columns=["customer_id", "refund_after_churn", "last_login_days_ago"])\n'
+            'list(safe.columns)'
+        ),
+        md(
+            "Why each drop:\n\n"
+            "- `customer_id` — identifier, no predictive content\n"
+            "- `refund_after_churn` — happens after the outcome (**leak**)\n"
+            "- `last_login_days_ago` — measured at extraction time, may also leak"
+        ),
+        md(
+            "## 9. Drop rows vs. drop columns\n\n"
+            "Same verb, very different consequence."
+        ),
+        code(
+            'print("Drop rows with any NA:  ", churn.dropna().shape)\n'
+            'print("Drop one column:        ", churn.drop(columns=["customer_id"]).shape)'
+        ),
+        md("## Mini-lab: leakage hunt"),
+        code(
+            'print(churn.columns.tolist())\n'
+            'print(churn.dtypes)\n'
+            'safe = churn.drop(columns=["customer_id", "refund_after_churn"])\n'
+            'print("Kept columns:", list(safe.columns))'
+        ),
+        md(
+            "## Discussion\n\n"
+            "- For each remaining column, when in the customer's lifetime "
+            "is its value known? Before churn, at churn, or after?\n"
+            "- Which columns would you keep for an honest churn-prediction "
+            "EDA, and which would you justify dropping in writing?"
+        ),
+        md(
+            "## Takeaway\n\n"
+            "Functions introduced / reinforced: `columns`, `dtypes`, "
+            "`astype`, `to_datetime`, `select_dtypes`, `corr`, `drop`.\n\n"
+            "**Concept learned: not every column deserves to survive EDA.**"
+        ),
+    ]
+)
+
+
 NOTEBOOKS = {
     "01_datasaurus_always_plot.ipynb": datasaurus_cells,
     "02_simpsons_paradox.ipynb": simpsons_cells,
     "03_survivorship_bias.ipynb": survivorship_cells,
     "04_gaming_whales_outliers.ipynb": whales_cells,
+    "05_collider_bias.ipynb": collider_cells,
+    "06_regression_to_mean.ipynb": rtm_cells,
+    "07_misleading_variables.ipynb": misleading_cells,
 }
 
 

@@ -168,11 +168,6 @@ datasaurus_cells = (
             'plt.show()'
         ),
         md(
-            "## Discussion\n\n"
-            "- What would a report of means and standard deviations hide here?\n"
-            "- Which dataset would you flag as suspicious if you only had the summary table?\n"
-        ),
-        md(
             "## Mini-lab: the plotting habit\n\n"
             "Build a fast EDA opening ritual:"
         ),

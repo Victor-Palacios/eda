@@ -84,7 +84,7 @@ def setup_cells(title: str, subtitle: str) -> list[dict]:
 # ---------------------------------------------------------------------------
 datasaurus_cells = (
     setup_cells(
-        "Datasaurus: First Look, Then Plot",
+        "Datasaurus: First Inspect, Then Plot",
         "Why summary statistics are not enough",
     )
     + [

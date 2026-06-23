@@ -6,23 +6,30 @@ one concept at a time.
 
 ## Layout
 
+Material is organized one folder per **day**. Each day holds its own
+`data/` and `notebooks/`.
+
 ```
-data/                      CSV datasets used by the notebooks
-notebooks/                 one notebook per bias type
-  01_datasaurus_always_plot.ipynb
-  02_simpsons_paradox.ipynb
-  03_survivorship_bias.ipynb
-  04_gaming_whales_outliers.ipynb
-  05_collider_bias.ipynb
-  06_regression_to_mean.ipynb
-  07_misleading_variables.ipynb
-  _build_notebooks.py      generator script (re-run to rebuild notebooks)
+Data Cleaning and Exploratory Data Analysis/   <- Day 1
+  data/                    datasets used by the notebooks (varied formats)
+  notebooks/               one notebook per bias type
+    01_datasaurus_always_plot.ipynb
+    02_simpsons_paradox.ipynb
+    03_survivorship_bias.ipynb
+    04_gaming_whales_outliers.ipynb
+    05_collider_bias.ipynb
+    06_regression_to_mean.ipynb
+    07_misleading_variables.ipynb
+    _build_notebooks.py    generator script (re-run to rebuild notebooks)
 ```
+
+Future days will be added as sibling top-level folders.
 
 ## Running
 
 ```bash
 pip install pandas matplotlib jupyter
+cd "Data Cleaning and Exploratory Data Analysis"
 jupyter lab
 ```
 
@@ -40,11 +47,11 @@ For the **code editor and output** font size, use the host application:
 
 ## Rebuilding the notebooks
 
-Notebook content is generated from `notebooks/_build_notebooks.py`. If you
-edit the script, regenerate with:
+Notebook content is generated from `_build_notebooks.py` inside each day's
+`notebooks/` folder. If you edit the script, regenerate with:
 
 ```bash
-python notebooks/_build_notebooks.py
+python "Data Cleaning and Exploratory Data Analysis/notebooks/_build_notebooks.py"
 ```
 
 ## Coverage

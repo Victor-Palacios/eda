@@ -26,9 +26,17 @@ pip install pandas matplotlib jupyter
 jupyter lab
 ```
 
-Open any notebook in `notebooks/` and **run the first code cell first** — it
-injects CSS so all text (markdown, code, and outputs) renders at a minimum
-of 24px, which is suitable for live classroom display.
+Open any notebook in `notebooks/`. Every markdown cell is wrapped in an
+inline-styled `<div style="font-size: 24px; line-height: 1.6;">` so the
+narration text renders at 24px+ in every notebook environment
+(JupyterLab, classic Jupyter, VS Code, Colab, nbviewer, GitHub preview,
+and HTML export) — no CSS injection required.
+
+For the **code editor and output** font size, use the host application:
+
+- JupyterLab: *Settings → Theme → Increase Code Font Size*
+- VS Code: workspace setting `editor.fontSize` and `notebook.markup.fontSize`
+- Browser zoom (Ctrl/Cmd + `+`) bumps everything at once and works anywhere.
 
 ## Rebuilding the notebooks
 

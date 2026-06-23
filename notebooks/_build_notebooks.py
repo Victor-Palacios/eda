@@ -8,57 +8,22 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-# CSS injected at the top of every notebook so all text is at least 24px.
-# Targets both rendered markdown and code-editor / output font sizes.
-LARGE_FONT_CSS_CELL_SOURCE = '''\
-from IPython.display import HTML, display
-
-display(HTML("""
-<style>
-/* Rendered markdown */
-.jp-RenderedHTMLCommon,
-.jp-RenderedMarkdown,
-.rendered_html {
-    font-size: 24px !important;
-    line-height: 1.5 !important;
-}
-.jp-RenderedHTMLCommon h1, .rendered_html h1 { font-size: 40px !important; }
-.jp-RenderedHTMLCommon h2, .rendered_html h2 { font-size: 34px !important; }
-.jp-RenderedHTMLCommon h3, .rendered_html h3 { font-size: 30px !important; }
-.jp-RenderedHTMLCommon h4, .rendered_html h4 { font-size: 28px !important; }
-.jp-RenderedHTMLCommon table, .rendered_html table {
-    font-size: 22px !important;
-}
-
-/* Code editor (CodeMirror, used by classic + JupyterLab) */
-.CodeMirror, .cm-editor, .jp-Editor, .jp-InputArea-editor {
-    font-size: 24px !important;
-}
-.cm-content, .cm-line { font-size: 24px !important; }
-
-/* Code output (print, tracebacks, DataFrame text) */
-.jp-OutputArea-output,
-.output_area,
-.output pre,
-.jp-RenderedText pre {
-    font-size: 22px !important;
-}
-
-/* DataFrame tables in output */
-.dataframe, .dataframe th, .dataframe td {
-    font-size: 22px !important;
-}
-</style>
-"""))
-'''
+# Each markdown cell is wrapped in this block-level div so the rendered text
+# is large in every notebook renderer (JupyterLab, classic Jupyter, VS Code,
+# Colab, nbviewer, GitHub preview, HTML export). Per CommonMark, blank lines
+# inside an HTML block let markdown render normally between the tags, so
+# headers / lists / fenced code still work.
+MD_WRAP_OPEN = '<div style="font-size: 24px; line-height: 1.6;">\n\n'
+MD_WRAP_CLOSE = '\n\n</div>'
 
 
 def md(source: str) -> dict:
-    """Markdown cell."""
+    """Markdown cell wrapped in a large-font div."""
+    wrapped = MD_WRAP_OPEN + source.strip() + MD_WRAP_CLOSE
     return {
         "cell_type": "markdown",
         "metadata": {},
-        "source": source.splitlines(keepends=True) or [""],
+        "source": wrapped.splitlines(keepends=True),
     }
 
 
@@ -93,17 +58,29 @@ def notebook(cells: list[dict]) -> dict:
 
 
 def setup_cells(title: str, subtitle: str) -> list[dict]:
-    """Common opening cells: title, large-font CSS, imports."""
+    """Common opening cells: title and imports.
+
+    Markdown cells use an inline-styled wrapper for large font (see `md`).
+    Code-editor font size cannot be reliably set per-notebook across
+    JupyterLab / VS Code / Colab — use the host application's settings or
+    browser zoom for that.
+    """
     return [
         md(f"# {title}\n\n## {subtitle}"),
         md(
-            "Run the cell below first. It enlarges the font for both code and "
-            "markdown so the notebook is easy to read while walking through it "
-            "in class."
+            "**Tip for instructors:** if the code editor or output text is "
+            "still small for your room, use browser zoom (Ctrl/Cmd + `+`) "
+            "or bump *Settings → Theme → Increase Code Font Size* in "
+            "JupyterLab. Markdown text is already enlarged inline."
         ),
-        code(LARGE_FONT_CSS_CELL_SOURCE),
         md("### Imports"),
-        code("import pandas as pd\nimport matplotlib.pyplot as plt\n\nplt.rcParams['font.size'] = 16\nplt.rcParams['figure.figsize'] = (8, 5)"),
+        code(
+            "import pandas as pd\n"
+            "import matplotlib.pyplot as plt\n"
+            "\n"
+            "plt.rcParams['font.size'] = 16\n"
+            "plt.rcParams['figure.figsize'] = (8, 5)"
+        ),
     ]
 
 

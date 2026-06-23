@@ -737,6 +737,29 @@ NOTEBOOKS = {
 }
 
 
+def strip_mini_labs(cells: list[dict]) -> list[dict]:
+    """Drop any 'Mini-lab' markdown header and the code cell that follows it."""
+    out: list[dict] = []
+    i = 0
+    while i < len(cells):
+        cell = cells[i]
+        first_line = ""
+        if cell["cell_type"] == "markdown":
+            src = "".join(cell["source"])
+            # Look past the wrapper div opening for the real heading.
+            stripped = src.replace(MD_WRAP_OPEN, "").lstrip()
+            first_line = stripped.splitlines()[0] if stripped else ""
+        if first_line.lower().startswith("## mini-lab"):
+            # Skip this markdown cell and any immediately following code cell.
+            i += 1
+            if i < len(cells) and cells[i]["cell_type"] == "code":
+                i += 1
+            continue
+        out.append(cell)
+        i += 1
+    return out
+
+
 def hoist_takeaway(cells: list[dict]) -> list[dict]:
     """Move the Takeaway markdown cell to the top, right after the title.
 
@@ -766,7 +789,7 @@ def hoist_takeaway(cells: list[dict]) -> list[dict]:
 def main() -> None:
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
-        nb = notebook(hoist_takeaway(cells))
+        nb = notebook(hoist_takeaway(strip_mini_labs(cells)))
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")
         print(f"Wrote {path}")

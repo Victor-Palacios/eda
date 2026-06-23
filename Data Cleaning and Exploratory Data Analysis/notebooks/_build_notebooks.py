@@ -148,8 +148,8 @@ datasaurus_cells = (
         ),
         md(
             "## 11. Look at summary statistics for each shape\n\n"
-            "Notice how similar the summaries are — yet the data is wildly "
-            "different (we will see that next)."
+            "Notice how similar the summaries are — yet the data is "
+            "dramatically different (we will see that next)."
         ),
         code('df.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
         md("## 12. Correlations per dataset"),

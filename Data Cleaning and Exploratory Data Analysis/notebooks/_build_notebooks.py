@@ -159,9 +159,13 @@ datasaurus_cells = (
         code('df.groupby("dataset")[["x", "y"]].corr().round(2)'),
         md("## 13. Now plot each dataset\n\nThe story lands when you see the shapes."),
         code(
-            'for name, part in df.groupby("dataset"):\n'
-            '    ax = part.plot(kind="scatter", x="x", y="y", title=name)\n'
-            '    plt.show()'
+            'fig, axes = plt.subplots(2, 2, figsize=(12, 10))\n'
+            '\n'
+            'for ax, (name, part) in zip(axes.flat, df.groupby("dataset")):\n'
+            '    part.plot(kind="scatter", x="x", y="y", title=name, ax=ax)\n'
+            '\n'
+            'fig.tight_layout()\n'
+            'plt.show()'
         ),
         md(
             "## Discussion\n\n"

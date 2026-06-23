@@ -6,6 +6,7 @@ Run from the repo root or from this directory:
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 # Each markdown cell is wrapped in this block-level div so the rendered text
@@ -804,6 +805,56 @@ NOTEBOOKS = {
 }
 
 
+# Style rule: numbered section headings (## N. ...) stay heading-only — no
+# descriptive subheading sentence underneath. The only exceptions are headings
+# whose body carries genuine teaching the code alone does not convey: the
+# per-notebook file-format explanations (the "Load ..." steps) and the
+# Datasaurus test-row / dtype lesson. List those exact heading lines here.
+PRESERVE_SUBTEXT_HEADINGS = {
+    # Datasaurus test-row / dtype lesson
+    "## 3. Last glance with `df.tail()`",
+    "## 8. Data types with `df.dtypes`",
+    "## 9. Isolate numeric columns with `df.select_dtypes()`",
+    "## 10. Clean the bad row, then fix the types",
+    # File-format explanations (one per notebook); nb1 loads plain CSV so its
+    # "Load the evidence" step is intentionally NOT preserved.
+    "## 1. Load the trial data",
+    "## 1. Load the startup dataset",
+    "## 1. Load the gaming dataset",
+    "## 1. Load the admissions data",
+    "## 1. Load the score dataset",
+    "## 1. Load the churn dataset",
+}
+
+_NUMBERED_HEADING = re.compile(r"^## \d+\.")
+
+
+def strip_section_subtext(cells: list[dict]) -> list[dict]:
+    """Reduce numbered `## N.` heading cells to the heading line only.
+
+    Keeps the body for headings in PRESERVE_SUBTEXT_HEADINGS. Non-numbered
+    markdown cells (## The story, ## Discussion, ## Takeaway, standalone
+    explanation paragraphs) are left untouched.
+    """
+    out: list[dict] = []
+    for cell in cells:
+        if cell["cell_type"] == "markdown":
+            body = "".join(cell["source"])
+            if body.startswith(MD_WRAP_OPEN):
+                body = body[len(MD_WRAP_OPEN):]
+            if body.endswith(MD_WRAP_CLOSE):
+                body = body[: -len(MD_WRAP_CLOSE)]
+            body = body.strip()
+            first_line = body.splitlines()[0] if body else ""
+            if (
+                _NUMBERED_HEADING.match(first_line)
+                and first_line not in PRESERVE_SUBTEXT_HEADINGS
+            ):
+                cell = md(first_line)
+        out.append(cell)
+    return out
+
+
 def strip_mini_labs(cells: list[dict]) -> list[dict]:
     """Drop any 'Mini-lab' markdown header and the code cell that follows it."""
     out: list[dict] = []
@@ -859,7 +910,7 @@ def hoist_takeaway(cells: list[dict]) -> list[dict]:
 def main() -> None:
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
-        nb = notebook(hoist_takeaway(strip_mini_labs(cells)))
+        nb = notebook(hoist_takeaway(strip_mini_labs(strip_section_subtext(cells))))
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")
         print(f"Wrote {path}")

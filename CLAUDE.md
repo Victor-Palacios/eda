@@ -4,6 +4,13 @@
 - Do **not** use the words "wild" or "wildly" anywhere (notebooks, markdown,
   comments, commit messages). Prefer alternatives like "dramatically",
   "very", "strikingly".
+- Numbered section headings in notebooks (`## 1. ...`, `## 2. ...`) stay
+  **heading-only** — do not add a descriptive subheading sentence underneath
+  (e.g. avoid "The file is the witness. Start by opening it."). The code cell
+  and the heading speak for themselves. Substantive teaching that the code
+  cannot convey on its own (file-format notes on the load step, the
+  Datasaurus test-row/dtype lesson) is the only allowed exception and is
+  listed in `PRESERVE_SUBTEXT_HEADINGS` in the generator.
 
 ## Structure
 - Course material is organized one folder per day, e.g.

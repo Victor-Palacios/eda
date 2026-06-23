@@ -760,10 +760,36 @@ NOTEBOOKS = {
 }
 
 
+def hoist_takeaway(cells: list[dict]) -> list[dict]:
+    """Move the Takeaway markdown cell to the top, right after the title.
+
+    Each module ends with a markdown cell whose source begins with
+    `## Takeaway` (functions introduced + concept learned). Surface that
+    summary as the first thing students see, so the punchline is up front.
+    """
+    cells = list(cells)
+    takeaway_idx = None
+    for i, cell in enumerate(cells):
+        if cell["cell_type"] != "markdown":
+            continue
+        first_line = "".join(cell["source"]).lstrip().splitlines()[0] if cell["source"] else ""
+        if first_line.startswith("## Takeaway"):
+            takeaway_idx = i
+            break
+
+    if takeaway_idx is None:
+        return cells
+
+    takeaway = cells.pop(takeaway_idx)
+    # cells[0] is the H1 title; insert takeaway at position 1.
+    cells.insert(1, takeaway)
+    return cells
+
+
 def main() -> None:
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
-        nb = notebook(cells)
+        nb = notebook(hoist_takeaway(cells))
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")
         print(f"Wrote {path}")

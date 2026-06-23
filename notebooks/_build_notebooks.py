@@ -97,8 +97,22 @@ datasaurus_cells = (
         code('df = pd.read_csv("../data/always_plot_demo.csv")'),
         md("## 2. First glance with `df.head()`\n\nWhat does one row look like?"),
         code("df.head()"),
-        md("## 3. Last glance with `df.tail()`\n\nCatch weird endings, appended notes, or format changes."),
+        md(
+            "## 3. Last glance with `df.tail()`\n\n"
+            "Catch weird endings, appended notes, or format changes. "
+            "**Look closely at the very last row here** — a stray "
+            "`test, test, test` row sneaked in at the bottom of the file. "
+            "This is exactly the kind of junk that `head()` would never "
+            "show you."
+        ),
         code("df.tail()"),
+        md(
+            "That one bad row has a hidden cost. Because `x` and `y` now "
+            "contain the text `\"test\"`, pandas could not read those "
+            "columns as numbers — watch what `dtypes` says about them in a "
+            "moment. A single garbage row at the edge poisons the type of "
+            "the whole column."
+        ),
         md("## 4. Random glance with `df.sample()`\n\nIf rows are sorted, `head()` can stage-manage the evidence. `sample()` breaks the staging."),
         code("df.sample(5, random_state=42)"),
         md("## 5. How much evidence? `df.shape`"),
@@ -107,19 +121,40 @@ datasaurus_cells = (
         code("list(df.columns)"),
         md("## 7. Schema check with `df.info()`\n\n`info()` combines non-null counts with types — fastest first audit."),
         code("df.info()"),
-        md("## 8. Data types with `df.dtypes`"),
+        md(
+            "## 8. Data types with `df.dtypes`\n\n"
+            "Here is the proof. `x` and `y` should be `float64`, but they "
+            "show up as `object` (text) — all because of that one "
+            "`test` row."
+        ),
         code("df.dtypes"),
-        md("## 9. Isolate numeric columns with `df.select_dtypes()`"),
+        md(
+            "## 9. Isolate numeric columns with `df.select_dtypes()`\n\n"
+            "Watch the consequence: asking for the numeric columns returns "
+            "**nothing useful** — `x` and `y` are missing, because pandas no "
+            "longer sees them as numbers."
+        ),
         code('numeric = df.select_dtypes(include="number")\nnumeric.head()'),
         md(
-            "## 10. Look at summary statistics for each shape\n\n"
+            "## 10. Clean the bad row, then fix the types\n\n"
+            "Drop the junk row and convert `x` and `y` back to numbers. "
+            "Now the rest of the analysis can actually run."
+        ),
+        code(
+            'df = df[df["dataset"] != "test"].copy()\n'
+            'df["x"] = pd.to_numeric(df["x"])\n'
+            'df["y"] = pd.to_numeric(df["y"])\n'
+            'df.dtypes'
+        ),
+        md(
+            "## 11. Look at summary statistics for each shape\n\n"
             "Notice how similar the summaries are — yet the data is wildly "
             "different (we will see that next)."
         ),
         code('df.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
-        md("## 11. Correlations per dataset"),
+        md("## 12. Correlations per dataset"),
         code('df.groupby("dataset")[["x", "y"]].corr().round(2)'),
-        md("## 12. Now plot each dataset\n\nThe story lands when you see the shapes."),
+        md("## 13. Now plot each dataset\n\nThe story lands when you see the shapes."),
         code(
             'for name, part in df.groupby("dataset"):\n'
             '    ax = part.plot(kind="scatter", x="x", y="y", title=name)\n'

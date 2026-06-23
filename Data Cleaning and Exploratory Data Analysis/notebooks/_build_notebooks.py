@@ -152,6 +152,7 @@ datasaurus_cells = (
             "Notice how similar the summaries are — yet the data is "
             "dramatically different (we will see that next)."
         ),
+        code('df[["x", "y"]].mean().round(2)'),
         code('df.groupby("dataset")[["x", "y"]].mean().round(2)'),
         code('df.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
         md("## 12. Correlations per dataset"),

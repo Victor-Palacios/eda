@@ -90,24 +90,24 @@ def setup_cells(title: str, subtitle: str, hook_image: str | None = None) -> lis
 
 
 # ---------------------------------------------------------------------------
-# Notebook 1: Datasaurus
+# Notebook 0: Inspect & Clean (the poisoned dataset)
 # ---------------------------------------------------------------------------
-datasaurus_cells = (
+inspect_cells = (
     setup_cells(
-        "Datasaurus: First Inspect, Then Plot",
-        "Why summary statistics are not enough",
-        hook_image="../images/datasaurus_summary.png",
+        "First, Inspect the Data",
+        "A single stray row can poison a whole column",
     )
     + [
         md(
             "## The story\n\n"
-            "Several different datasets can share nearly identical means, "
-            "standard deviations, and correlations — yet look completely "
-            "different when you plot them. **Always plot.**"
+            "Before any analysis, open the file and look at it. A single "
+            "leftover row — like a stray `test` row — can quietly change a "
+            "numeric column into text. This notebook builds the habit of "
+            "inspecting and cleaning *before* you compute anything."
         ),
-        md("## 1. Load the evidence with `pd.read_csv()`\n\nThe file is the witness. Start by opening it."),
+        md("## 1. Load the evidence with `pd.read_csv()`"),
         code('df = pd.read_csv("../data/always_plot_demo.csv")'),
-        md("## 2. First glance with `df.head()`\n\nWhat does one row look like?"),
+        md("## 2. First glance with `df.head()`"),
         code("df.head()"),
         md(
             "## 3. Last glance with `df.tail()`\n\n"
@@ -150,7 +150,7 @@ datasaurus_cells = (
         md(
             "## 10. Clean the bad row, then fix the types\n\n"
             "Drop the junk row and convert `x` and `y` back to numbers. "
-            "Now the rest of the analysis can actually run."
+            "Now the columns are usable again."
         ),
         code(
             'df = df[df["dataset"] != "test"].copy()\n'
@@ -159,41 +159,42 @@ datasaurus_cells = (
             'df.dtypes'
         ),
         md(
-            "## 11. Look at summary statistics for each shape\n\n"
-            "Notice how similar the summaries are — yet the data is "
-            "dramatically different (we will see that next)."
+            "## Takeaway\n\n"
+            "Functions introduced: `pd.read_csv`, `head`, `tail`, `sample`, "
+            "`shape`, `columns`, `info`, `dtypes`, `select_dtypes`, "
+            "`pd.to_numeric`.\n\n"
+            "**Concept learned: inspect and clean the data before you "
+            "analyze it.**"
         ),
-        code('df[["x", "y"]].mean().round(2)'),
-        code('df.groupby("dataset")[["x", "y"]].mean().round(2)'),
-        code('df.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
-        md("## 12. Correlations per dataset"),
-        code('df.groupby("dataset")[["x", "y"]].corr().round(2)'),
-        md("## 13. Now plot each dataset\n\nThe story lands when you see the shapes."),
-        code(
-            'fig, axes = plt.subplots(2, 2, figsize=(12, 10))\n'
-            '\n'
-            'for ax, (name, part) in zip(axes.flat, df.groupby("dataset")):\n'
-            '    part.plot(kind="scatter", x="x", y="y", title=name, ax=ax)\n'
-            '\n'
-            'fig.tight_layout()\n'
-            'plt.show()'
-        ),
+    ]
+)
+
+# ---------------------------------------------------------------------------
+# Notebook 1: Datasaurus (the real Datasaurus Dozen)
+# ---------------------------------------------------------------------------
+datasaurus_cells = (
+    setup_cells(
+        "Datasaurus: Same Stats, Different Shapes",
+        "Why summary statistics are not enough",
+        hook_image="../images/datasaurus_summary.png",
+    )
+    + [
         md(
-            "## The real Datasaurus Dozen\n\n"
-            "The demo above used a few hand-made shapes. Here is the famous "
-            "**Datasaurus Dozen**: 13 datasets engineered to share nearly the "
-            "same mean, standard deviation, and correlation — yet each draws a "
-            "completely different picture."
+            "## The story\n\n"
+            "The famous **Datasaurus Dozen** is 13 datasets engineered to "
+            "share nearly the same mean, standard deviation, and correlation "
+            "— yet each draws a completely different picture. If you trust the "
+            "summary table alone, you never see the dinosaur. **Always plot.**"
         ),
+        md("## 1. Load the Datasaurus Dozen"),
         code('dino = pd.read_csv("../data/datasaurus_dozen.csv")\ndino.head()'),
-        md(
-            "The summary statistics are practically identical across all 13 "
-            "sets — same mean, same standard deviation:"
-        ),
+        md("## 2. The summary statistics look identical"),
         code('dino.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
-        md("The correlation between x and y is nearly identical too:"),
+        md("Same mean, same standard deviation across all 13 sets."),
+        md("## 3. The correlation is identical too"),
         code('dino.groupby("dataset")[["x", "y"]].corr().round(2)'),
-        md("Now plot them. Same numbers, very different pictures:"),
+        md("## 4. Now plot them"),
+        md("Same numbers, very different pictures:"),
         code(
             'fig, axes = plt.subplots(4, 4, figsize=(14, 14))\n'
             '\n'
@@ -213,21 +214,10 @@ datasaurus_cells = (
             "plot the data.**"
         ),
         md(
-            "## Mini-lab: the plotting habit\n\n"
-            "Build a fast EDA opening ritual:"
-        ),
-        code(
-            'df = pd.read_csv("../data/always_plot_demo.csv")\n'
-            'print(df.shape)\n'
-            'print(df.dtypes)\n'
-            'print(df.sample(5, random_state=42))\n'
-            'df.query("dataset == \'line\'").plot(kind="scatter", x="x", y="y")'
-        ),
-        md(
             "## Takeaway\n\n"
-            "Functions introduced: `pd.read_csv`, `head`, `tail`, `sample`, "
-            "`shape`, `columns`, `info`, `dtypes`, `select_dtypes`, `plot`.\n\n"
-            "**Concept learned: before interpretation, look at the data.**"
+            "Functions featured: `groupby`, `.agg`, `corr`, `plot`.\n\n"
+            "**Concept learned: identical summary statistics can hide very "
+            "different shapes — always plot.**"
         ),
     ]
 )
@@ -828,6 +818,7 @@ misleading_cells = (
 
 
 NOTEBOOKS = {
+    "00_inspect_and_clean.ipynb": inspect_cells,
     "01_datasaurus_always_plot.ipynb": datasaurus_cells,
     "02_simpsons_paradox.ipynb": simpsons_cells,
     "03_survivorship_bias.ipynb": survivorship_cells,
@@ -999,15 +990,19 @@ def build_datasaurus_summary_image() -> None:
     )
 
     fig.tight_layout()
+    # Arrows start at the stats-box edge and extend only a fraction of the way
+    # toward each panel, so the heads land in the gutter and never overlap a plot.
     cpos = center.get_position()
     cx, cy = (cpos.x0 + cpos.x1) / 2, (cpos.y0 + cpos.y1) / 2
+    reach = 0.46
     for name, (r, c) in positions.items():
         p = axes[r][c].get_position()
         tx, ty = (p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2
+        ex, ey = cx + reach * (tx - cx), cy + reach * (ty - cy)
         fig.add_artist(FancyArrowPatch(
-            (cx, cy), (tx, ty), transform=fig.transFigure,
-            arrowstyle="-|>", mutation_scale=16, color="0.35", lw=1.4,
-            shrinkA=46, shrinkB=26,
+            (cx, cy), (ex, ey), transform=fig.transFigure,
+            arrowstyle="-|>", mutation_scale=15, color="0.35", lw=1.4,
+            shrinkA=44, shrinkB=0,
         ))
 
     IMAGES_DIR.mkdir(exist_ok=True)

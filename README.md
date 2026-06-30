@@ -13,7 +13,8 @@ Material is organized one folder per **day**. Each day holds its own
 Data Cleaning and Exploratory Data Analysis/   <- Day 1
   data/                    datasets used by the notebooks (varied formats)
   images/                  generated figures embedded in notebooks
-  notebooks/               one notebook per bias type
+  notebooks/               one notebook per topic
+    00_inspect_and_clean.ipynb
     01_datasaurus_always_plot.ipynb
     02_simpsons_paradox.ipynb
     03_survivorship_bias.ipynb
@@ -61,22 +62,20 @@ python "Data Cleaning and Exploratory Data Analysis/notebooks/_build_notebooks.p
 
 ## Coverage
 
-Each notebook opens with a **different** pandas reader so students see
-the breadth of formats pandas can handle. Datasaurus stays on CSV as
-the baseline.
+Notebook 00 (inspect & clean) and notebook 01 (Datasaurus) use CSV as the
+baseline; notebooks 02–07 each open with a **different** pandas reader so
+students see the breadth of formats pandas can handle.
 
-| Bias | Dataset | Reader | Notebook |
+| Topic | Dataset | Reader | Notebook |
 |---|---|---|---|
-| Datasaurus / always plot | `data/always_plot_demo.csv` | `pd.read_csv` | `01_datasaurus_always_plot.ipynb` |
+| Inspect & clean (a poisoned column) | `data/always_plot_demo.csv` | `pd.read_csv` | `00_inspect_and_clean.ipynb` |
+| Datasaurus: same stats, different shapes | `data/datasaurus_dozen.csv` | `pd.read_csv` | `01_datasaurus_always_plot.ipynb` |
 | Simpson's Paradox | `data/simpsons_paradox_treatment.xlsx` | `pd.read_excel` | `02_simpsons_paradox.ipynb` |
 | Survivorship bias | `data/startup_survivorship.json` | `pd.read_json` | `03_survivorship_bias.ipynb` |
 | Gaming whales / outliers | `data/gaming_outliers.parquet` | `pd.read_parquet` | `04_gaming_whales_outliers.ipynb` |
 | Collider bias | `data/collider_admissions.feather` | `pd.read_feather` | `05_collider_bias.ipynb` |
 | Regression to the mean | `data/regression_to_mean_scores.pkl` | `pd.read_pickle` | `06_regression_to_mean.ipynb` |
 | Misleading variables / leakage | `data/misleading_variables_churn.html` | `pd.read_html` | `07_misleading_variables.ipynb` |
-
-A CSV copy of `misleading_variables_churn` is also kept under `data/`
-because notebooks 03 and 06 reference it as a secondary example.
 
 ### Extra dependencies
 

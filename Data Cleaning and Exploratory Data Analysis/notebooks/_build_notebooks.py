@@ -94,7 +94,7 @@ def setup_cells(title: str, subtitle: str, hook_image: str | None = None) -> lis
 # ---------------------------------------------------------------------------
 inspect_cells = (
     setup_cells(
-        "First, Inspect the Data",
+        "Garbage In, Garbage Out & Poisoned Data",
         "A single stray row can poison a whole column",
     )
     + [
@@ -984,25 +984,49 @@ def build_datasaurus_summary_image() -> None:
         f"Y SD   : {ysd:5.2f}\n"
         f"Corr.  : {corr:5.2f}"
     )
-    center.text(
+    box = center.text(
         0.5, 0.5, text, ha="center", va="center", family="monospace",
         fontsize=17, bbox=dict(boxstyle="round,pad=0.6", facecolor="#e8e8e8", edgecolor="none"),
     )
 
     fig.tight_layout()
-    # Arrows start at the stats-box edge and extend only a fraction of the way
-    # toward each panel, so the heads land in the gutter and never overlap a plot.
-    cpos = center.get_position()
-    cx, cy = (cpos.x0 + cpos.x1) / 2, (cpos.y0 + cpos.y1) / 2
-    reach = 0.46
+    fig.canvas.draw()  # finalize positions so the stats-box extent is known
+
+    # Each arrow spans only the gutter: it starts at the edge of the gray stats
+    # box and stops at the edge of its target panel, so it never overlaps either.
+    inv = fig.transFigure.inverted()
+    ext = box.get_bbox_patch().get_window_extent()
+    bx0, by0 = inv.transform((ext.x0, ext.y0))
+    bx1, by1 = inv.transform((ext.x1, ext.y1))
+    cx, cy = (bx0 + bx1) / 2, (by0 + by1) / 2
+
+    def ray_exit(px, py, ux, uy, x0, y0, x1, y1):
+        """Distance from interior point (px,py) along unit (ux,uy) to the rect edge."""
+        ts = []
+        if ux > 0:
+            ts.append((x1 - px) / ux)
+        elif ux < 0:
+            ts.append((x0 - px) / ux)
+        if uy > 0:
+            ts.append((y1 - py) / uy)
+        elif uy < 0:
+            ts.append((y0 - py) / uy)
+        return min(ts)
+
+    pad = 0.006
     for name, (r, c) in positions.items():
         p = axes[r][c].get_position()
-        tx, ty = (p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2
-        ex, ey = cx + reach * (tx - cx), cy + reach * (ty - cy)
+        px, py = (p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2
+        ux, uy = px - cx, py - cy
+        norm = (ux ** 2 + uy ** 2) ** 0.5
+        ux, uy = ux / norm, uy / norm
+        tb = ray_exit(cx, cy, ux, uy, bx0, by0, bx1, by1)        # leave the box
+        sx, sy = cx + ux * (tb + pad), cy + uy * (tb + pad)
+        tp = ray_exit(px, py, -ux, -uy, p.x0, p.y0, p.x1, p.y1)  # reach the panel
+        ex, ey = px - ux * (tp + pad), py - uy * (tp + pad)
         fig.add_artist(FancyArrowPatch(
-            (cx, cy), (ex, ey), transform=fig.transFigure,
+            (sx, sy), (ex, ey), transform=fig.transFigure,
             arrowstyle="-|>", mutation_scale=15, color="0.35", lw=1.4,
-            shrinkA=44, shrinkB=0,
         ))
 
     IMAGES_DIR.mkdir(exist_ok=True)

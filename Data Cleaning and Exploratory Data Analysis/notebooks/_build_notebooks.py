@@ -159,6 +159,83 @@ inspect_cells = (
             'df.dtypes'
         ),
         md(
+            "## More ways data gets messy or poisoned\n\n"
+            "The `test` row was one kind of poison. Here are five more you "
+            "will meet constantly in real datasets. Each uses a tiny made-up "
+            "table so the problem is easy to see."
+        ),
+        md(
+            "### 1. Missing values in disguise\n\n"
+            "Real missing values are often hidden as sentinels like `-999`, "
+            "`\"N/A\"`, or `\"unknown\"`. Pandas does not count them as `NaN` "
+            "until you tell it to — so `isna()` reports the data as complete."
+        ),
+        code(
+            'disguised = pd.DataFrame({\n'
+            '    "age": [34, -999, 28, 41],\n'
+            '    "city": ["Paris", "N/A", "Lima", "unknown"],\n'
+            '})\n'
+            'print("isna sees nothing wrong:", disguised.isna().sum().sum())\n'
+            'real = disguised.replace([-999, "N/A", "unknown"], pd.NA)\n'
+            'print("after replacing sentinels:", real.isna().sum().sum())'
+        ),
+        md(
+            "### 2. Numbers stored as text\n\n"
+            "A column of prices like `\"$1,200\"` is text, not numbers. "
+            "Summing it *glues the strings together* instead of adding."
+        ),
+        code(
+            'prices = pd.DataFrame({"price": ["$1,200", "$950", "$3,400"]})\n'
+            'print("Broken (string) sum:", prices["price"].sum())\n'
+            'clean = prices["price"].str.replace(r"[$,]", "", regex=True).astype(float)\n'
+            'print("Real total:", clean.sum())'
+        ),
+        md(
+            "### 3. Inconsistent categories\n\n"
+            "Casing and stray spaces split one real category into several. "
+            "`\"USA\"`, `\"usa\"`, and `\" USA \"` look identical to us but are "
+            "different groups to pandas."
+        ),
+        code(
+            'survey = pd.DataFrame({"country": ["USA", "usa", " USA ", "Canada", "canada"]})\n'
+            'print("raw:    ", survey["country"].value_counts().to_dict())\n'
+            'normalized = survey["country"].str.strip().str.upper()\n'
+            'print("cleaned:", normalized.value_counts().to_dict())'
+        ),
+        md(
+            "### 4. Duplicate rows\n\n"
+            "A row copied twice silently double-counts. Always check "
+            "`duplicated()` before trusting a total."
+        ),
+        code(
+            'orders = pd.DataFrame({"order_id": [1, 2, 2, 3], "amount": [10, 25, 25, 8]})\n'
+            'print("with duplicates -> rows:", len(orders), "total:", orders["amount"].sum())\n'
+            'deduped = orders.drop_duplicates()\n'
+            'print("after dedupe    -> rows:", len(deduped), "total:", deduped["amount"].sum())'
+        ),
+        md(
+            "### 5. Impossible / out-of-range values\n\n"
+            "An `age` of `999` or `-3` is not a person — it is a typo or a "
+            "sentinel, and one bad value can drag the mean far off. "
+            "Range-check before you summarize."
+        ),
+        code(
+            'people = pd.DataFrame({"age": [27, 5, 999, -3, 44]})\n'
+            'print("mean with bad rows:", round(people["age"].mean(), 1))\n'
+            'valid = people[(people["age"] >= 0) & (people["age"] <= 120)]\n'
+            'print("mean after range check:", round(valid["age"].mean(), 1))'
+        ),
+        md(
+            "### A few more to watch for\n\n"
+            "- **Mixed or ambiguous date formats** (`01/02/03`) — parse with "
+            "`pd.to_datetime` and check the result.\n"
+            "- **ID columns losing leading zeros** when read as numbers "
+            "(`007` becomes `7`).\n"
+            "- **Text-encoding gremlins** (`café` showing up as `cafÃ©`).\n"
+            "- **Silently mixed units** (kg vs lb, USD vs EUR) in one column.\n"
+            "- **Trailing spaces in column names** (`\"age \"` vs `\"age\"`)."
+        ),
+        md(
             "## Takeaway\n\n"
             "Functions introduced: `pd.read_csv`, `head`, `tail`, `sample`, "
             "`shape`, `columns`, `info`, `dtypes`, `select_dtypes`, "

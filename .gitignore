@@ -1,0 +1,7 @@
+# Generated static site (built by build_site.py / CI, deployed to Pages)
+_site/
+
+# Python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/

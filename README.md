@@ -4,6 +4,9 @@ Beginner-friendly Pandas EDA, taught through memorable bias stories. Each
 bias gets its own Jupyter notebook so you can walk through it with students
 one concept at a time.
 
+**📊 Live site (large code font for projecting):**
+https://victor-palacios.github.io/eda/
+
 ## Layout
 
 Material is organized one folder per **day**. Each day holds its own
@@ -59,6 +62,27 @@ Notebook content is generated from `_build_notebooks.py` inside each day's
 ```bash
 python "Data Cleaning and Exploratory Data Analysis/notebooks/_build_notebooks.py"
 ```
+
+## Large-code-font web view (GitHub Pages)
+
+GitHub's notebook viewer renders code cells too small for a classroom and
+strips custom CSS, so we also publish an HTML site where the **code font is
+30px** (prose and headings scale above it). `build_site.py` renders the
+committed notebooks to a self-contained site in `_site/`, and
+`.github/workflows/pages.yml` builds and deploys it to GitHub Pages on every
+push to the default branch.
+
+Build it locally to preview:
+
+```bash
+pip install nbconvert nbformat
+python build_site.py        # writes _site/ (git-ignored)
+open _site/index.html
+```
+
+**One-time setup:** in the repo, go to **Settings → Pages → Source = "GitHub
+Actions"**. The site then publishes at the link above once this lands on the
+default branch. (`_site/` is generated, not committed.)
 
 ## Coverage
 

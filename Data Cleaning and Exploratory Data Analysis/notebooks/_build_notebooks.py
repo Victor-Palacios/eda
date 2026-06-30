@@ -9,6 +9,10 @@ import json
 import re
 from pathlib import Path
 
+DAY_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = DAY_DIR / "data"
+IMAGES_DIR = DAY_DIR / "images"
+
 # Each markdown cell is wrapped in this block-level div so the rendered text
 # is large in every notebook renderer (JupyterLab, classic Jupyter, VS Code,
 # Colab, nbviewer, GitHub preview, HTML export). Per CommonMark, blank lines
@@ -58,16 +62,22 @@ def notebook(cells: list[dict]) -> dict:
     }
 
 
-def setup_cells(title: str, subtitle: str) -> list[dict]:
+def setup_cells(title: str, subtitle: str, hook_image: str | None = None) -> list[dict]:
     """Common opening cells: title and imports.
 
     Markdown cells use an inline-styled wrapper for large font (see `md`).
     Code-editor font size cannot be reliably set per-notebook across
     JupyterLab / VS Code / Colab — use the host application's settings or
     browser zoom for that.
+
+    If `hook_image` (a notebook-relative path) is given, it is embedded right
+    under the subtitle as a visual hook.
     """
+    title_src = f"# {title}\n\n## {subtitle}"
+    if hook_image:
+        title_src += f"\n\n![{title}]({hook_image})"
     return [
-        md(f"# {title}\n\n## {subtitle}"),
+        md(title_src),
         md("### Imports"),
         code(
             "import pandas as pd\n"
@@ -86,6 +96,7 @@ datasaurus_cells = (
     setup_cells(
         "Datasaurus: First Inspect, Then Plot",
         "Why summary statistics are not enough",
+        hook_image="../images/datasaurus_summary.png",
     )
     + [
         md(
@@ -929,7 +940,84 @@ def hoist_takeaway(cells: list[dict]) -> list[dict]:
     return cells
 
 
+def build_datasaurus_summary_image() -> None:
+    """Render the Datasaurus "same stats, different shapes" hook infographic.
+
+    A central box of the (near-identical) summary statistics with arrows out
+    to eight of the thirteen shapes, drawn from the real datasaurus_dozen.csv.
+    Saved to images/datasaurus_summary.png and embedded at the top of nb01.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    from matplotlib.patches import FancyArrowPatch
+
+    df = pd.read_csv(DATA_DIR / "datasaurus_dozen.csv")
+    g = df.groupby("dataset")
+    stats = g[["x", "y"]].agg(["mean", "std"])
+    xmean = stats[("x", "mean")].mean()
+    ymean = stats[("y", "mean")].mean()
+    xsd = stats[("x", "std")].mean()
+    ysd = stats[("y", "std")].mean()
+    corr = g.apply(lambda d: d["x"].corr(d["y"]), include_groups=False).mean()
+
+    positions = {
+        "away": (0, 0), "bullseye": (0, 1), "circle": (0, 2),
+        "dino": (1, 0), "h_lines": (1, 2),
+        "high_lines": (2, 0), "slant_down": (2, 1), "slant_up": (2, 2),
+    }
+    colors = {
+        "away": "#e36c6c", "bullseye": "#e69a3c", "circle": "#c7b500",
+        "dino": "#88a838", "h_lines": "#3cae8c", "high_lines": "#3caea3",
+        "slant_down": "#4aa3df", "slant_up": "#4a78df",
+    }
+
+    fig, axes = plt.subplots(3, 3, figsize=(11, 9))
+    for name, (r, c) in positions.items():
+        ax = axes[r][c]
+        part = g.get_group(name)
+        ax.scatter(part["x"], part["y"], s=10, color=colors[name])
+        ax.set_title(name, fontsize=15)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+
+    center = axes[1][1]
+    center.axis("off")
+    text = (
+        f"X Mean : {xmean:5.2f}\n"
+        f"Y Mean : {ymean:5.2f}\n"
+        f"X SD   : {xsd:5.2f}\n"
+        f"Y SD   : {ysd:5.2f}\n"
+        f"Corr.  : {corr:5.2f}"
+    )
+    center.text(
+        0.5, 0.5, text, ha="center", va="center", family="monospace",
+        fontsize=17, bbox=dict(boxstyle="round,pad=0.6", facecolor="#e8e8e8", edgecolor="none"),
+    )
+
+    fig.tight_layout()
+    cpos = center.get_position()
+    cx, cy = (cpos.x0 + cpos.x1) / 2, (cpos.y0 + cpos.y1) / 2
+    for name, (r, c) in positions.items():
+        p = axes[r][c].get_position()
+        tx, ty = (p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2
+        fig.add_artist(FancyArrowPatch(
+            (cx, cy), (tx, ty), transform=fig.transFigure,
+            arrowstyle="-|>", mutation_scale=16, color="0.35", lw=1.4,
+            shrinkA=46, shrinkB=26,
+        ))
+
+    IMAGES_DIR.mkdir(exist_ok=True)
+    fig.savefig(IMAGES_DIR / "datasaurus_summary.png", dpi=110, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Wrote {IMAGES_DIR / 'datasaurus_summary.png'}")
+
+
 def main() -> None:
+    build_datasaurus_summary_image()
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
         nb = notebook(hoist_takeaway(strip_mini_labs(strip_section_subtext(cells))))

@@ -12,6 +12,7 @@ Material is organized one folder per **day**. Each day holds its own
 ```
 Data Cleaning and Exploratory Data Analysis/   <- Day 1
   data/                    datasets used by the notebooks (varied formats)
+  images/                  generated figures embedded in notebooks
   notebooks/               one notebook per bias type
     01_datasaurus_always_plot.ipynb
     02_simpsons_paradox.ipynb
@@ -22,6 +23,10 @@ Data Cleaning and Exploratory Data Analysis/   <- Day 1
     07_misleading_variables.ipynb
     _build_notebooks.py    generator script (re-run to rebuild notebooks)
 ```
+
+Running the generator also (re)creates `images/datasaurus_summary.png` — the
+"same stats, different shapes" hook embedded at the top of notebook 1, drawn
+from `data/datasaurus_dozen.csv`.
 
 Future days will be added as sibling top-level folders.
 

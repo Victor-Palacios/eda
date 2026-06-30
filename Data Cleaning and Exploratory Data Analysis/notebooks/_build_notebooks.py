@@ -168,6 +168,40 @@ datasaurus_cells = (
             'plt.show()'
         ),
         md(
+            "## The real Datasaurus Dozen\n\n"
+            "The demo above used a few hand-made shapes. Here is the famous "
+            "**Datasaurus Dozen**: 13 datasets engineered to share nearly the "
+            "same mean, standard deviation, and correlation — yet each draws a "
+            "completely different picture."
+        ),
+        code('dino = pd.read_csv("../data/datasaurus_dozen.csv")\ndino.head()'),
+        md(
+            "The summary statistics are practically identical across all 13 "
+            "sets — same mean, same standard deviation:"
+        ),
+        code('dino.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
+        md("The correlation between x and y is nearly identical too:"),
+        code('dino.groupby("dataset")[["x", "y"]].corr().round(2)'),
+        md("Now plot them. Same numbers, very different pictures:"),
+        code(
+            'fig, axes = plt.subplots(4, 4, figsize=(14, 14))\n'
+            '\n'
+            'for ax, (name, part) in zip(axes.flat, dino.groupby("dataset")):\n'
+            '    part.plot(kind="scatter", x="x", y="y", title=name, ax=ax, s=8)\n'
+            '\n'
+            '# Hide the unused axes (13 datasets, 16 slots).\n'
+            'for ax in axes.flat[dino["dataset"].nunique():]:\n'
+            '    ax.set_visible(False)\n'
+            '\n'
+            'fig.tight_layout()\n'
+            'plt.show()'
+        ),
+        md(
+            "Identical means, standard deviations, and correlation — yet a "
+            "dinosaur, a star, circles, and lines. **This is why you always "
+            "plot the data.**"
+        ),
+        md(
             "## Mini-lab: the plotting habit\n\n"
             "Build a fast EDA opening ritual:"
         ),
@@ -654,19 +688,6 @@ rtm_cells = (
             "subtracts out in the change."
         ),
         code('scores[["baseline_score", "change"]].corr()'),
-        md(
-            "## 8. Dates with `pd.to_datetime()`\n\n"
-            "Before/after analyses often require real datetime columns. We "
-            "do not have a date here, but the same technique applies on the "
-            "churn dataset."
-        ),
-        code(
-            'churn = pd.read_csv("../data/misleading_variables_churn.csv")\n'
-            'churn["signup_date"] = pd.to_datetime(churn["signup_date"])\n'
-            'churn["signup_date"].dtype'
-        ),
-        md("## 9. Check the type after conversion"),
-        code('churn[["signup_date"]].dtypes'),
         md("## Mini-lab: extremes drift"),
         code(
             'low = scores.sort_values("baseline_score").head(100)\n'
@@ -685,7 +706,7 @@ rtm_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `sort_values`, `corr`, `pd.to_datetime`.\n\n"
+            "Functions introduced: `sort_values`, `corr`.\n\n"
             "**Concept learned: extreme selection can make ordinary drift "
             "look causal.**"
         ),

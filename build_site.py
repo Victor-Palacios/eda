@@ -29,6 +29,17 @@ DAYS = [
     ("Data Cleaning and Exploratory Data Analysis", "Data Cleaning & EDA"),
 ]
 
+# External links to surface on the index right after a given notebook (keyed by
+# notebook stem). Each entry is (link label, URL) and opens in a new tab.
+EXTRA_LINKS = {
+    "02_simpsons_paradox": [
+        (
+            "Simpson's Paradox Slides",
+            "https://docs.google.com/presentation/d/1lhOHUUkFfWmnUTOGvgq7HLS0oOyRznayzgkHb8Jaafg/edit?slide=id.p1#slide=id.p1",
+        ),
+    ],
+}
+
 # Code (input + text output) is driven by --jp-code-font-size in the nbconvert
 # `lab` template; we lift it to a 30px floor and scale prose/headers above it so
 # the visual hierarchy stays headers > prose > code.
@@ -112,11 +123,14 @@ def build() -> None:
             title = notebook_title(nb) or ipynb.stem
             items.append((f"{slug}/{out.name}", title))
             print(f"Wrote {out}")
+            for label_text, url in EXTRA_LINKS.get(ipynb.stem, []):
+                items.append((url, label_text))
 
-        links = "\n".join(
-            f'    <li><a href="{href}">{html_lib.escape(title)}</a></li>'
-            for href, title in items
-        )
+        def render_link(href: str, title: str) -> str:
+            attrs = ' target="_blank" rel="noopener"' if href.startswith("http") else ""
+            return f'    <li><a href="{href}"{attrs}>{html_lib.escape(title)}</a></li>'
+
+        links = "\n".join(render_link(href, title) for href, title in items)
         sections.append(f"  <h2>{html_lib.escape(label)}</h2>\n  <ul>\n{links}\n  </ul>")
 
     index = f"""<!doctype html>

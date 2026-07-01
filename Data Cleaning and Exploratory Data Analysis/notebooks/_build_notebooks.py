@@ -1012,6 +1012,15 @@ PRESERVE_SUBTEXT_HEADINGS = {
     "## 1. Load the churn dataset",
 }
 
+# Extra whitespace (px) above each numbered section heading, per notebook. This
+# is a teaching-comparison knob: nb00 gets a moderate gap, nb01 double that, so
+# the instructor can judge which spacing to roll out to every notebook. A
+# notebook not listed here (default 0) keeps the tight original spacing.
+SECTION_GAP_PX = {
+    "00_inspect_and_clean.ipynb": 28,
+    "01_datasaurus_always_plot.ipynb": 56,
+}
+
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
 
 
@@ -1037,6 +1046,33 @@ def strip_section_subtext(cells: list[dict]) -> list[dict]:
                 and first_line not in PRESERVE_SUBTEXT_HEADINGS
             ):
                 cell = md(first_line)
+        out.append(cell)
+    return out
+
+
+def add_section_gap(cells: list[dict], gap_px: int) -> list[dict]:
+    """Add vertical whitespace above each numbered `## N.` section heading.
+
+    Widens the top margin of the heading cell's font wrapper so the sections
+    read as clearly separated blocks. `gap_px` is the extra space in pixels;
+    0 leaves cells untouched. Applied per-notebook so we can compare sizes.
+    """
+    if not gap_px:
+        return cells
+    gap_open = (
+        f'<div style="font-size: 24px; line-height: 1.6; '
+        f'margin-top: {gap_px}px;">\n\n'
+    )
+    out: list[dict] = []
+    for cell in cells:
+        if cell["cell_type"] == "markdown":
+            src = "".join(cell["source"])
+            if src.startswith(MD_WRAP_OPEN):
+                inner = src[len(MD_WRAP_OPEN):].lstrip()
+                first_line = inner.splitlines()[0] if inner else ""
+                if _NUMBERED_HEADING.match(first_line):
+                    new_src = gap_open + src[len(MD_WRAP_OPEN):]
+                    cell = {**cell, "source": new_src.splitlines(keepends=True)}
         out.append(cell)
     return out
 
@@ -1201,7 +1237,9 @@ def main() -> None:
     build_datasaurus_summary_image()
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
-        nb = notebook(hoist_takeaway(strip_mini_labs(strip_section_subtext(cells))))
+        cells = hoist_takeaway(strip_mini_labs(strip_section_subtext(cells)))
+        cells = add_section_gap(cells, SECTION_GAP_PX.get(name, 0))
+        nb = notebook(cells)
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")
         print(f"Wrote {path}")

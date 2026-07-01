@@ -166,7 +166,19 @@ inspect_cells = (
             "table so the problem is easy to see."
         ),
         md(
-            "### 1. Missing values in disguise\n\n"
+            "### 1. Impossible / out-of-range values\n\n"
+            "An `age` of `999` or `-3` is not a person — it is a typo or a "
+            "sentinel, and one bad value can drag the mean far off. "
+            "Range-check before you summarize."
+        ),
+        code(
+            'people = pd.DataFrame({"age": [27, 5, 999, -3, 44]})\n'
+            'print("mean with bad rows:", round(people["age"].mean(), 1))\n'
+            'valid = people[(people["age"] >= 0) & (people["age"] <= 120)]\n'
+            'print("mean after range check:", round(valid["age"].mean(), 1))'
+        ),
+        md(
+            "### 2. Missing values in disguise\n\n"
             "Real missing values are often hidden as sentinels like `-999`, "
             "`\"N/A\"`, or `\"unknown\"`. Pandas does not count them as `NaN` "
             "until you tell it to — so `isna()` reports the data as complete."
@@ -181,7 +193,7 @@ inspect_cells = (
             'print("after replacing sentinels:", real.isna().sum().sum())'
         ),
         md(
-            "### 2. Numbers stored as text\n\n"
+            "### 3. Numbers stored as text\n\n"
             "A column of prices like `\"$1,200\"` is text, not numbers. "
             "Summing it *glues the strings together* instead of adding."
         ),
@@ -192,7 +204,7 @@ inspect_cells = (
             'print("Real total:", clean.sum())'
         ),
         md(
-            "### 3. Inconsistent categories\n\n"
+            "### 4. Inconsistent categories\n\n"
             "Casing and stray spaces split one real category into several. "
             "`\"USA\"`, `\"usa\"`, and `\" USA \"` look identical to us but are "
             "different groups to pandas."
@@ -204,27 +216,16 @@ inspect_cells = (
             'print("cleaned:", normalized.value_counts().to_dict())'
         ),
         md(
-            "### 4. Duplicate rows\n\n"
+            "### 5. Duplicate rows\n\n"
             "A row copied twice silently double-counts. Always check "
             "`duplicated()` before trusting a total."
         ),
         code(
             'orders = pd.DataFrame({"order_id": [1, 2, 2, 3], "amount": [10, 25, 25, 8]})\n'
+            'display(orders)  # rows 1 and 2 are identical -- the duplicate\n'
             'print("with duplicates -> rows:", len(orders), "total:", orders["amount"].sum())\n'
             'deduped = orders.drop_duplicates()\n'
             'print("after dedupe    -> rows:", len(deduped), "total:", deduped["amount"].sum())'
-        ),
-        md(
-            "### 5. Impossible / out-of-range values\n\n"
-            "An `age` of `999` or `-3` is not a person — it is a typo or a "
-            "sentinel, and one bad value can drag the mean far off. "
-            "Range-check before you summarize."
-        ),
-        code(
-            'people = pd.DataFrame({"age": [27, 5, 999, -3, 44]})\n'
-            'print("mean with bad rows:", round(people["age"].mean(), 1))\n'
-            'valid = people[(people["age"] >= 0) & (people["age"] <= 120)]\n'
-            'print("mean after range check:", round(valid["age"].mean(), 1))'
         ),
         md(
             "### A few more to watch for\n\n"

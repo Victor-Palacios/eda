@@ -175,7 +175,7 @@ inspect_cells = (
             'people = pd.DataFrame({"age": [27, 5, 999, -3, 44]})\n'
             'print("mean with bad rows:", round(people["age"].mean(), 1))\n'
             'valid = people[(people["age"] >= 0) & (people["age"] <= 120)]\n'
-            'print("mean after range check:", round(valid["age"].mean(), 1))'
+            'print("\\nmean after range check:", round(valid["age"].mean(), 1))'
         ),
         md(
             "### 2. Missing values in disguise\n\n"
@@ -190,7 +190,7 @@ inspect_cells = (
             '})\n'
             'print("isna sees nothing wrong:", disguised.isna().sum().sum())\n'
             'real = disguised.replace([-999, "N/A", "unknown"], pd.NA)\n'
-            'print("after replacing sentinels:", real.isna().sum().sum())'
+            'print("\\nafter replacing sentinels:", real.isna().sum().sum())'
         ),
         md(
             "### 3. Numbers stored as text\n\n"
@@ -201,7 +201,7 @@ inspect_cells = (
             'prices = pd.DataFrame({"price": ["$1,200", "$950", "$3,400"]})\n'
             'print("Broken (string) sum:", prices["price"].sum())\n'
             'clean = prices["price"].str.replace(r"[$,]", "", regex=True).astype(float)\n'
-            'print("Real total:", clean.sum())'
+            'print("\\nReal total:", clean.sum())'
         ),
         md(
             "### 4. Inconsistent categories\n\n"
@@ -213,7 +213,7 @@ inspect_cells = (
             'survey = pd.DataFrame({"country": ["USA", "usa", " USA ", "Canada", "canada"]})\n'
             'print("raw:    ", survey["country"].value_counts().to_dict())\n'
             'normalized = survey["country"].str.strip().str.upper()\n'
-            'print("cleaned:", normalized.value_counts().to_dict())'
+            'print("\\ncleaned:", normalized.value_counts().to_dict())'
         ),
         md(
             "### 5. Duplicate rows\n\n"
@@ -225,7 +225,7 @@ inspect_cells = (
             'display(orders)  # rows 1 and 2 are identical -- the duplicate\n'
             'print("with duplicates -> rows:", len(orders), "total:", orders["amount"].sum())\n'
             'deduped = orders.drop_duplicates()\n'
-            'print("after dedupe    -> rows:", len(deduped), "total:", deduped["amount"].sum())'
+            'print("\\nafter dedupe    -> rows:", len(deduped), "total:", deduped["amount"].sum())'
         ),
         md(
             "### A few more to watch for\n\n"

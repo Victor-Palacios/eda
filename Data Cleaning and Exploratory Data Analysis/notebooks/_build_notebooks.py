@@ -96,6 +96,7 @@ inspect_cells = (
     setup_cells(
         "Garbage In, Garbage Out & Poisoned Data",
         "A single stray row can poison a whole column",
+        hook_image="../images/data_poisoning.png",
     )
     + [
         md(

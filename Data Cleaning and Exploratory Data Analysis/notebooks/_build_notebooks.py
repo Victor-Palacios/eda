@@ -1017,8 +1017,8 @@ PRESERVE_SUBTEXT_HEADINGS = {
 # the instructor can judge which spacing to roll out to every notebook. A
 # notebook not listed here (default 0) keeps the tight original spacing.
 SECTION_GAP_PX = {
-    "00_inspect_and_clean.ipynb": 28,
-    "01_datasaurus_always_plot.ipynb": 56,
+    "00_inspect_and_clean.ipynb": 112,
+    "01_datasaurus_always_plot.ipynb": 224,
 }
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")

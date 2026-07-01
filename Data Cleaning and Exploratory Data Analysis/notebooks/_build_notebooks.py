@@ -291,10 +291,93 @@ datasaurus_cells = (
             "plot the data.**"
         ),
         md(
+            "## Anscombe's quartet: the original\n\n"
+            "Long before the Datasaurus, Frank Anscombe (1973) built four "
+            "small datasets that share the same mean, variance, and "
+            "correlation — **and the exact same best-fit line** — yet tell "
+            "four different stories. It is the classic reason to plot before "
+            "you model."
+        ),
+        code(
+            'import numpy as np\n'
+            '\n'
+            'anscombe = pd.DataFrame({\n'
+            '    "dataset": ["I"] * 11 + ["II"] * 11 + ["III"] * 11 + ["IV"] * 11,\n'
+            '    "x": [10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5] * 3\n'
+            '         + [8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8],\n'
+            '    "y": [8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68,\n'
+            '          9.14, 8.14, 8.74, 8.77, 9.26, 8.10, 6.13, 3.10, 9.13, 7.26, 4.74,\n'
+            '          7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73,\n'
+            '          6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89],\n'
+            '})\n'
+            'anscombe.head()'
+        ),
+        md("Every dataset has the same summary statistics:"),
+        code(
+            'anscombe.groupby("dataset").agg(\n'
+            '    mean_x=("x", "mean"),\n'
+            '    mean_y=("y", "mean"),\n'
+            '    var_x=("x", "var"),\n'
+            '    var_y=("y", "var"),\n'
+            ').round(2)'
+        ),
+        code(
+            'anscombe.groupby("dataset").apply(\n'
+            '    lambda d: d["x"].corr(d["y"]), include_groups=False\n'
+            ').round(3)'
+        ),
+        md("Now plot each one with its best-fit line. The line is identical — but only honest for Dataset I:"),
+        code(
+            'labels = {\n'
+            '    "I": "Dataset I \\u2014 linear fit is right",\n'
+            '    "II": "Dataset II \\u2014 needs a quadratic",\n'
+            '    "III": "Dataset III \\u2014 one outlier warps it",\n'
+            '    "IV": "Dataset IV \\u2014 one point sets the slope",\n'
+            '}\n'
+            'colors = {"I": "#4a78df", "II": "#3caea3", "III": "#e69a3c", "IV": "#6a4ca5"}\n'
+            '\n'
+            'fig, axes = plt.subplots(2, 2, figsize=(12, 10))\n'
+            'for ax, (name, part) in zip(axes.flat, anscombe.groupby("dataset")):\n'
+            '    ax.scatter(part["x"], part["y"], color=colors[name], s=40)\n'
+            '    slope, intercept = np.polyfit(part["x"], part["y"], 1)\n'
+            '    xs = np.array([part["x"].min(), part["x"].max()])\n'
+            '    ax.plot(xs, slope * xs + intercept, "--", color="0.5")\n'
+            '    ax.set_title(labels[name])\n'
+            '    ax.set_xlabel("x")\n'
+            '    ax.set_ylabel("y")\n'
+            '\n'
+            'fig.tight_layout()\n'
+            'plt.show()'
+        ),
+        md(
+            "Same fitted line `y = 3.00 + 0.50x` in every panel — but it only "
+            "tells the truth for Dataset I. Dataset II is really a curve, "
+            "Dataset III is thrown off by a single outlier, and in Dataset IV "
+            "one lone point sets the entire slope."
+        ),
+        md(
+            "## Why plotting beats a summary table\n\n"
+            "> A statistical test requires you to already suspect the specific "
+            "thing you're testing for — you run the normality test because you "
+            "hypothesized non-normality. Visualization is hypothesis-"
+            "generating: you look at a histogram and discover bimodality you "
+            "never would have thought to test for.\n\n"
+            "Anscombe's quartet and the Datasaurus Dozen make the same point: "
+            "a summary table can only confirm what you already suspected, but "
+            "a plot can surprise you. **Always plot the data.**"
+        ),
+        md(
+            "## Where to go next\n\n"
+            "For a huge catalog of plot types (and copy-paste code for each), "
+            "browse the matplotlib gallery: "
+            "<https://matplotlib.org/stable/gallery/index>"
+        ),
+        md(
             "## Takeaway\n\n"
             "Functions featured: `groupby`, `.agg`, `corr`, `plot`.\n\n"
-            "**Concept learned: identical summary statistics can hide very "
-            "different shapes — always plot.**"
+            "**Concept learned: identical summary statistics — even an "
+            "identical best-fit line — can hide very different shapes. Always "
+            "plot.**"
         ),
     ]
 )

@@ -1012,14 +1012,10 @@ PRESERVE_SUBTEXT_HEADINGS = {
     "## 1. Load the churn dataset",
 }
 
-# Extra whitespace (px) above each numbered section heading, per notebook. This
-# is a teaching-comparison knob: nb00 gets a moderate gap, nb01 double that, so
-# the instructor can judge which spacing to roll out to every notebook. A
-# notebook not listed here (default 0) keeps the tight original spacing.
-SECTION_GAP_PX = {
-    "00_inspect_and_clean.ipynb": 112,
-    "01_datasaurus_always_plot.ipynb": 224,
-}
+# Extra whitespace (px) above each numbered section heading, applied to every
+# notebook so the sections read as clearly separated teaching blocks. 224px was
+# chosen after comparing several gap sizes in nb00/nb01.
+SECTION_GAP_PX = 224
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
 
@@ -1238,7 +1234,7 @@ def main() -> None:
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
         cells = hoist_takeaway(strip_mini_labs(strip_section_subtext(cells)))
-        cells = add_section_gap(cells, SECTION_GAP_PX.get(name, 0))
+        cells = add_section_gap(cells, SECTION_GAP_PX)
         nb = notebook(cells)
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")

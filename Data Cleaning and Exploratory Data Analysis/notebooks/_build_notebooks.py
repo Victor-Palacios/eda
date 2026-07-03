@@ -323,11 +323,7 @@ datasaurus_cells = (
             '    var_y=("y", "var"),\n'
             ').round(2)'
         ),
-        code(
-            'anscombe.groupby("dataset").apply(\n'
-            '    lambda d: d["x"].corr(d["y"]), include_groups=False\n'
-            ').round(3)'
-        ),
+        code('anscombe.groupby("dataset")[["x", "y"]].corr().round(3)'),
         md("Now plot each one with its best-fit line. The line is identical — but only honest for Dataset I:"),
         code(
             'labels = {\n'
@@ -464,7 +460,7 @@ simpsons_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `groupby`, `.agg`, `pd.crosstab`, `value_counts`.\n\n"
+            "Functions introduced: `groupby`, `.agg`, `pd.crosstab`, `value_counts`, `unstack`.\n\n"
             "**Concept learned: important groups can reverse the headline conclusion.**"
         ),
     ]
@@ -565,8 +561,8 @@ survivorship_cells = (
         code('survivors_only = startups.dropna(subset=["year3_revenue_millions"])'),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `isna`, `isna().sum`, `fillna`, `dropna`, "
-            "`duplicated`, `drop_duplicates`.\n\n"
+            "Functions introduced: `isna`, `isna().sum`, `value_counts`, "
+            "`pd.crosstab`, `fillna`, `dropna`, `duplicated`, `drop_duplicates`.\n\n"
             "**Concept learned: missing rows and missing values are evidence.**"
         ),
     ]
@@ -774,7 +770,7 @@ collider_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `query`, `loc`, `iloc`.\n\n"
+            "Functions introduced: `query`, `corr`, `loc`, `iloc`.\n\n"
             "**Concept learned: selection can invent or hide relationships.**"
         ),
     ]
@@ -869,7 +865,7 @@ rtm_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `sort_values`, `corr`.\n\n"
+            "Functions introduced: `sort_values`, `pd.concat`, `corr`.\n\n"
             "**Concept learned: extreme selection can make ordinary drift "
             "look causal.**"
         ),
@@ -972,7 +968,8 @@ misleading_cells = (
         md(
             "## Takeaway\n\n"
             "Functions introduced / reinforced: `columns`, `dtypes`, "
-            "`astype`, `to_datetime`, `select_dtypes`, `corr`, `drop`.\n\n"
+            "`astype`, `to_datetime`, `select_dtypes`, `corr`, `pd.crosstab`, "
+            "`drop`, `dropna`.\n\n"
             "**Concept learned: not every column deserves to survive EDA.**"
         ),
     ]

@@ -242,6 +242,9 @@ inspect_cells = (
             "Functions introduced: `pd.read_csv`, `head`, `tail`, `sample`, "
             "`shape`, `columns`, `info`, `dtypes`, `select_dtypes`, "
             "`pd.to_numeric`.\n\n"
+            "From the poison gallery: `isna`, `replace`, `.str.strip`, "
+            "`.str.upper`, `.str.replace`, `astype`, `value_counts`, "
+            "`drop_duplicates`, `mean`, `sum`.\n\n"
             "**Concept learned: inspect and clean the data before you "
             "analyze it.**"
         ),
@@ -460,7 +463,7 @@ simpsons_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `groupby`, `.agg`, `pd.crosstab`, `value_counts`, `unstack`.\n\n"
+            "Functions introduced: `pd.read_excel`, `groupby`, `.agg`, `pd.crosstab`, `value_counts`, `unstack`.\n\n"
             "**Concept learned: important groups can reverse the headline conclusion.**"
         ),
     ]
@@ -556,13 +559,15 @@ survivorship_cells = (
         md(
             "## Don't change data silently\n\n"
             "Prefer creating a new object over overwriting the original "
-            "during EDA — your future self will thank you."
+            "during EDA — your future self will thank you. That is why we "
+            "wrote `survivors_only = startups.dropna(...)` above instead of "
+            "overwriting `startups`."
         ),
-        code('survivors_only = startups.dropna(subset=["year3_revenue_millions"])'),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `isna`, `isna().sum`, `value_counts`, "
-            "`pd.crosstab`, `fillna`, `dropna`, `duplicated`, `drop_duplicates`.\n\n"
+            "Functions introduced: `pd.read_json`, `isna`, `isna().sum`, "
+            "`value_counts`, `pd.crosstab`, `fillna`, `dropna`, `duplicated`, "
+            "`drop_duplicates`.\n\n"
             "**Concept learned: missing rows and missing values are evidence.**"
         ),
     ]
@@ -659,8 +664,9 @@ whales_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions reinforced: `describe`, `value_counts`, `nunique`, "
-            "`sort_values`, `groupby().agg`, `plot`.\n\n"
+            "Functions introduced: `pd.read_parquet`, `describe`, `nunique`.\n\n"
+            "Functions reinforced: `value_counts`, `sort_values`, "
+            "`groupby().agg`, `plot`.\n\n"
             "**Concept learned: outliers can be errors, edge cases, or the "
             "whole story.**"
         ),
@@ -770,7 +776,7 @@ collider_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `query`, `corr`, `loc`, `iloc`.\n\n"
+            "Functions introduced: `pd.read_feather`, `query`, `corr`, `loc`, `iloc`.\n\n"
             "**Concept learned: selection can invent or hide relationships.**"
         ),
     ]
@@ -865,7 +871,7 @@ rtm_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced: `sort_values`, `pd.concat`, `corr`.\n\n"
+            "Functions introduced: `pd.read_pickle`, `sort_values`, `pd.concat`, `corr`.\n\n"
             "**Concept learned: extreme selection can make ordinary drift "
             "look causal.**"
         ),
@@ -967,9 +973,9 @@ misleading_cells = (
         ),
         md(
             "## Takeaway\n\n"
-            "Functions introduced / reinforced: `columns`, `dtypes`, "
-            "`astype`, `to_datetime`, `select_dtypes`, `corr`, `pd.crosstab`, "
-            "`drop`, `dropna`.\n\n"
+            "Functions introduced / reinforced: `pd.read_html`, `columns`, "
+            "`dtypes`, `astype`, `to_datetime`, `select_dtypes`, `corr`, "
+            "`pd.crosstab`, `drop`, `dropna`.\n\n"
             "**Concept learned: not every column deserves to survive EDA.**"
         ),
     ]

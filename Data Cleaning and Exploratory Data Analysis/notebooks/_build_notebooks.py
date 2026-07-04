@@ -106,9 +106,20 @@ inspect_cells = (
             "numeric column into text. This notebook builds the habit of "
             "inspecting and cleaning *before* you compute anything."
         ),
-        md("## 1. Load the evidence with `pd.read_csv()`"),
+        md(
+            "## 1. Load the evidence with `pd.read_csv()`\n\n"
+            "`pd.read_csv()` turns a plain text file of comma-separated "
+            "values into a **DataFrame** — the table object every other "
+            "pandas function operates on. Nothing can be inspected until "
+            "the file is a DataFrame."
+        ),
         code('df = pd.read_csv("../data/always_plot_demo.csv")'),
-        md("## 2. First glance with `df.head()`"),
+        md(
+            "## 2. First glance with `df.head()`\n\n"
+            "`head()` shows the first five rows — the fastest sanity check "
+            "that the file loaded correctly, and your first look at what "
+            "the columns actually contain."
+        ),
         code("df.head()"),
         md(
             "## 3. Last glance with `df.tail()`\n\n"
@@ -128,9 +139,19 @@ inspect_cells = (
         ),
         md("## 4. Random glance with `df.sample()`\n\nIf rows are sorted, `head()` can stage-manage the evidence. `sample()` breaks the staging."),
         code("df.sample(5, random_state=42)"),
-        md("## 5. How much evidence? `df.shape`"),
+        md(
+            "## 5. How much evidence? `df.shape`\n\n"
+            "`shape` returns `(rows, columns)`. Know your sample size "
+            "before quoting any statistic — a mean over 12 rows and a mean "
+            "over 12,000 deserve very different confidence."
+        ),
         code("df.shape"),
-        md("## 6. Name the variables with `df.columns`"),
+        md(
+            "## 6. Name the variables with `df.columns`\n\n"
+            "`columns` lists the column names, so you catch typos, "
+            "trailing spaces, and mystery variables before you start "
+            "referencing them in code."
+        ),
         code("list(df.columns)"),
         md("## 7. Schema check with `df.info()`\n\n`info()` combines non-null counts with types — fastest first audit."),
         code("df.info()"),
@@ -238,6 +259,20 @@ inspect_cells = (
             "- **Trailing spaces in column names** (`\"age \"` vs `\"age\"`)."
         ),
         md(
+            "## Why this matters to a data scientist\n\n"
+            "Every model is a compression of its training data. The `test` "
+            "row did not crash anything — it silently turned two numeric "
+            "columns into text, and anything downstream would have either "
+            "crashed later or quietly dropped those columns from the "
+            "analysis. **Garbage in, garbage out** is not a slogan; it is "
+            "the mechanism.\n\n"
+            "In AI this failure mode also exists *on purpose*: **data "
+            "poisoning**, where an attacker plants crafted rows in scraped "
+            "training data so a model learns something subtly hostile. The "
+            "defense is the same habit either way: inspect the data before "
+            "you compute on it — because the model never will."
+        ),
+        md(
             "## Takeaway\n\n"
             "Functions introduced: `pd.read_csv`, `head`, `tail`, `sample`, "
             "`shape`, `columns`, `info`, `dtypes`, `select_dtypes`, "
@@ -268,15 +303,32 @@ datasaurus_cells = (
             "— yet each draws a completely different picture. If you trust the "
             "summary table alone, you never see the dinosaur. **Always plot.**"
         ),
-        md("## 1. Load the Datasaurus Dozen"),
+        md(
+            "## 1. Load the Datasaurus Dozen\n\n"
+            "`pd.read_csv()` loads the raw points: one row per (x, y) "
+            "pair, tagged with which of the 13 datasets it belongs to."
+        ),
         code('dino = pd.read_csv("../data/datasaurus_dozen.csv")\ndino.head()'),
-        md("## 2. The summary statistics look identical"),
+        md(
+            "## 2. The summary statistics look identical\n\n"
+            "`groupby(\"dataset\")` splits the table into the 13 sets, and "
+            "`.agg([\"mean\", \"std\"])` computes both statistics for each "
+            "in one pass — the entire 'summary table' in one line."
+        ),
         code('dino.groupby("dataset")[["x", "y"]].agg(["mean", "std"]).round(2)'),
         md("Same mean, same standard deviation across all 13 sets."),
-        md("## 3. The correlation is identical too"),
+        md(
+            "## 3. The correlation is identical too\n\n"
+            "`corr()` measures the linear relationship between `x` and `y` "
+            "— the single number people trust most to describe a "
+            "relationship."
+        ),
         code('dino.groupby("dataset")[["x", "y"]].corr().round(2)'),
-        md("## 4. Now plot them"),
-        md("Same numbers, very different pictures:"),
+        md(
+            "## 4. Now plot them\n\n"
+            "Thirteen scatter plots in one grid: same numbers, very "
+            "different pictures."
+        ),
         code(
             'fig, axes = plt.subplots(4, 4, figsize=(14, 14))\n'
             '\n'
@@ -431,17 +483,15 @@ simpsons_cells = (
             '    success_rate=("success", "mean"),\n'
             ')'
         ),
-        md("## 8. Make the grouped table readable with `unstack()`"),
+        md(
+            "## 8. Make the grouped table readable with `unstack()`\n\n"
+            "`unstack()` pivots the inner index level into columns, "
+            "turning the long grouped result into a compact grid — the "
+            "same numbers, but the comparison now sits side by side."
+        ),
         code('trial.groupby(["risk_group", "treatment_arm"])["success"].mean().unstack()'),
         md("## 9. Normalize the crosstab\n\nWhat fraction of each treatment arm came from each risk group?"),
         code('pd.crosstab(trial["risk_group"], trial["treatment_arm"], normalize="columns")'),
-        md(
-            "## The four-step Simpson check\n\n"
-            "1. Overall result\n"
-            "2. Plausible group variable\n"
-            "3. Result inside groups\n"
-            "4. Group composition\n"
-        ),
         md("## Mini-lab: find the flip"),
         code(
             'overall = trial.groupby("treatment_arm")["success"].mean()\n'
@@ -456,10 +506,18 @@ simpsons_cells = (
             'print(composition)'
         ),
         md(
-            "## Discussion\n\n"
-            "- Which number would be easiest to put in a report?\n"
-            "- Which number would be more honest?\n"
-            "- What is driving the reversal — composition or biology?\n"
+            "## Why this matters to a data scientist\n\n"
+            "Overall metrics are how everything gets reported — "
+            "dashboards, A/B tests, model accuracy. Simpson's paradox "
+            "means an overall number can point in the *opposite* "
+            "direction of every group it summarizes.\n\n"
+            "The same trap appears when an A/B test is pooled across "
+            "countries, or when a model's accuracy is quoted without "
+            "checking subgroups: a model can look fine overall while "
+            "being the worst option for every group that matters "
+            "(checking exactly this is the core move of a fairness "
+            "audit). Before trusting any headline metric, name the groups "
+            "that matter and re-compute the metric inside each one."
         ),
         md(
             "## Takeaway\n\n"
@@ -540,7 +598,8 @@ survivorship_cells = (
             "Joins can *create* survivorship bias. A press directory only "
             "writes about companies that are still alive — merge against it "
             "with the default `how='inner'` and every failed startup "
-            "silently disappears. `how='left'` keeps the full population."
+            "silently disappears. `how='left'` keeps the full population.\n\n"
+            "![Inner vs. left merge](../images/merge_inner_left.png)"
         ),
         code(
             'press = survivors_only[["startup_id"]].copy()\n'
@@ -552,12 +611,55 @@ survivorship_cells = (
             'print("inner merge result:", inner.shape, " <- failures silently gone")\n'
             'print("left merge result: ", left.shape)'
         ),
-        md("## 11. Duplicate rows with `df.duplicated()`\n\nDuplicates are another row-level distortion."),
+        md("## 11. Find duplicates with `df.duplicated()`\n\n`duplicated()` flags every row that is an exact copy of an earlier one — duplicates silently double-count whatever you sum or average."),
         code("startups.duplicated().sum()"),
         md("## 12. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
         code(
             'clean = startups.drop_duplicates()\n'
             'print(startups.shape, clean.shape)'
+        ),
+        md(
+            "## The danger of filling: imputation changes the statistics\n\n"
+            "Back to section 6 for a harder look. Filling is never free: "
+            "every strategy *fabricates* 1,769 revenue values — far more "
+            "fabricated data than the 634 real values — and each strategy "
+            "distorts the statistics in a different way."
+        ),
+        code(
+            'real_rev = survivors_only["year3_revenue_millions"]\n'
+            'zero_fill = startups["year3_revenue_millions"].fillna(0)\n'
+            'mean_fill = startups["year3_revenue_millions"].fillna(\n'
+            '    startups["year3_revenue_millions"].mean()\n'
+            ')\n'
+            '\n'
+            'print("corr(seed_funding, revenue)")\n'
+            'print("  real (survivors only):", round(survivors_only["seed_funding_millions"].corr(real_rev), 3))\n'
+            'print("  after mean-fill:      ", round(startups["seed_funding_millions"].corr(mean_fill), 3))\n'
+            '\n'
+            'print("\\ncorr(market_score, revenue)")\n'
+            'print("  real (survivors only):", round(survivors_only["market_score"].corr(real_rev), 3))\n'
+            'print("  after zero-fill:      ", round(startups["market_score"].corr(zero_fill), 3))\n'
+            '\n'
+            'print("\\nspread of revenue (std)")\n'
+            'print("  real (survivors only):", round(real_rev.std(), 2))\n'
+            'print("  after mean-fill:      ", round(mean_fill.std(), 2))'
+        ),
+        md(
+            "Each fill strategy commits a different crime:\n\n"
+            "- **Mean-fill destroys real relationships.** The seed-funding "
+            "correlation is roughly cut in half, and the spread of revenue "
+            "drops from about 17 to about 9 — injecting 1,769 identical "
+            "values flattens every pattern in the column.\n"
+            "- **Zero-fill invents relationships that do not exist.** Among "
+            "survivors, `market_score` has *no* relationship with revenue. "
+            "But market score does predict *survival* — so writing 0 into "
+            "every failed startup copies the survival pattern into the "
+            "revenue column, and a correlation appears from nowhere. A "
+            "model would happily learn it.\n\n"
+            "Every statistic you compute after filling is partly a "
+            "statistic of your fill strategy. Imputation is a **modeling "
+            "decision**, not cleanup — document it, justify it, and check "
+            "what it does to the numbers you care about."
         ),
         md("## Mini-lab: missing failures"),
         code(
@@ -567,13 +669,6 @@ survivorship_cells = (
             'print(startups.shape, survivors_only.shape)'
         ),
         md(
-            "## Discussion\n\n"
-            "- What would the dataset look like if it were scraped from "
-            "success-story blog posts?\n"
-            "- If we report the average revenue from `survivors_only`, what "
-            "claim are we implicitly making about the failed startups?\n"
-        ),
-        md(
             "## Don't change data silently\n\n"
             "Prefer creating a new object over overwriting the original "
             "during EDA — your future self will thank you. That is why we "
@@ -581,11 +676,65 @@ survivorship_cells = (
             "overwriting `startups`."
         ),
         md(
+            "## Why this matters to a data scientist\n\n"
+            "Everything downstream inherits this bias. Train a revenue "
+            "model on `survivors_only` and it does not learn *what makes "
+            "startups succeed* — it learns *what successful startups look "
+            "like*, which is a different question. Deployed on next "
+            "year's cohort (which contains its future failures), its "
+            "predictions will be systematically too optimistic, because "
+            "the model has literally never seen a failure.\n\n"
+            "The deeper problem: the missingness here is **informative**. "
+            "Revenue is missing *because* the startup failed — "
+            "statisticians call this *missing not at random* (MNAR): the "
+            "mechanism that hides a value is tied to the value itself. No "
+            "fill strategy can recover information that was never "
+            "recorded."
+        ),
+        md(
+            "## The solution: model what you actually observe\n\n"
+            "We cannot conjure the missing revenue, but we are not stuck "
+            "— restructure the problem around what *is* observed for "
+            "everyone:\n\n"
+            "1. **Model survival first.** `survived_3yr` is present for "
+            "every row, so surviving-vs-failing is an honest question for "
+            "the full population.\n"
+            "2. **Model revenue *given* survival** on the survivors — and "
+            "label that estimate as conditional.\n"
+            "3. **Multiply the two** for an honest expected value (a "
+            "*two-stage* or *hurdle* model).\n\n"
+            "And the strongest fix is upstream: **design the missingness "
+            "out** — track cohorts from founding day so failures stay in "
+            "the dataset, instead of scraping success stories after the "
+            "fact."
+        ),
+        code(
+            'p_survive = startups["survived_3yr"].mean()\n'
+            'revenue_if_survive = survivors_only["year3_revenue_millions"].mean()\n'
+            '\n'
+            'print(f"Stage 1 - P(survive 3 years):    {p_survive:.1%}  (uses all {len(startups)} rows)")\n'
+            'print(f"Stage 2 - E[revenue | survived]: {revenue_if_survive:.2f}M  (uses {len(survivors_only)} survivors)")\n'
+            'print(f"\\nHonest expected revenue:  {p_survive * revenue_if_survive:.2f}M per startup founded")\n'
+            'print(f"Survivor-only headline:   {revenue_if_survive:.2f}M  <- almost 4x too optimistic")'
+        ),
+        md(
+            "This also explains why the zero-fill average in section 9 "
+            "was defensible *here*: in this dataset, missing revenue "
+            "really does mean \"failed, earned nothing\", so the zero-fill "
+            "mean and the two-stage estimate agree. When missing instead "
+            "means \"unrecorded\", zero-fill is simply wrong — but the "
+            "two-stage decomposition still works, because it never "
+            "pretends to know values it does not have."
+        ),
+        md(
             "## Takeaway\n\n"
-            "Functions introduced: `pd.read_json`, `isna`, `isna().sum`, "
+            "Functions introduced: `pd.read_json`, `isna`, "
             "`value_counts`, `pd.crosstab`, `fillna`, `dropna`, `pd.merge`, "
             "`duplicated`, `drop_duplicates`.\n\n"
-            "**Concept learned: missing rows and missing values are evidence.**"
+            "**Concept learned: missing rows and missing values are "
+            "evidence. A model trained only on survivors learns the wrong "
+            "population — model what is observed for everyone (survival) "
+            "first, then model the rest conditionally.**"
         ),
     ]
 )
@@ -653,7 +802,12 @@ whales_cells = (
             ')\n'
             'segment_summary'
         ),
-        md("## 8. What share of revenue comes from each segment?"),
+        md(
+            "## 8. What share of revenue comes from each segment?\n\n"
+            "Dividing each segment's total by the grand total turns raw "
+            "sums into shares — the number that tells you who actually "
+            "funds the game."
+        ),
         code(
             'segment_summary["revenue_share"] = (\n'
             '    segment_summary["total_spend"] / segment_summary["total_spend"].sum()\n'
@@ -678,6 +832,22 @@ whales_cells = (
             "- A teammate reports 'the average player spends $X/month'. "
             "Why is this misleading?\n"
             "- What number would be more honest to report instead?\n"
+        ),
+        md(
+            "## Why this matters to a data scientist\n\n"
+            "Heavy tails are the rule in tech data, not the exception: "
+            "revenue per customer, session length, tokens per request, "
+            "file sizes, follower counts. Two practical consequences:\n\n"
+            "- **Report distributions, not means.** 'The average player "
+            "spends $12.74' is technically true and practically false — "
+            "the *median* player spends about $3 (the 50% row in "
+            "`describe()` above). Quote the median, the quartiles, or the "
+            "revenue-share table you built.\n"
+            "- **Never remove outliers on autopilot.** A preprocessing "
+            "step that clips 'anomalies' would delete the whales here — "
+            "and with them, most of the revenue. In an ML pipeline, "
+            "automatic outlier removal can silently amputate the exact "
+            "behavior the business runs on."
         ),
         md(
             "## Takeaway\n\n"
@@ -737,14 +907,28 @@ collider_cells = (
         code('apps[["ability", "portfolio_score"]].corr()'),
         code('admitted[["ability", "portfolio_score"]].corr()'),
         md(
-            "In the full pool the two scores are essentially uncorrelated — "
-            "ability and portfolio are independent traits. Inside the "
-            "admitted group, a strong *negative* correlation appears out of "
-            "nowhere. That is collider bias in action — conditioning on "
-            "`admitted` **created** a relationship that does not exist in "
-            "the full pool."
+            "In the full pool, ability and portfolio are unrelated: "
+            "knowing one tells you nothing about the other (correlation "
+            "≈ 0). Inside the admitted group, a strong **negative** "
+            "correlation appears (≈ −0.35).\n\n"
+            "Why? Admission required impressing on *something*. A student "
+            "who got in with modest ability must have had a strong "
+            "portfolio; a student with a weak portfolio must have had "
+            "high ability — otherwise they would not be in the file. The "
+            "doorway filters out everyone who was low on both, and that "
+            "missing corner is what manufactures the trade-off.\n\n"
+            "Here is why it matters: study only the admitted file and you "
+            "would 'discover' that talented students build worse "
+            "portfolios — and then hand out coaching advice, change "
+            "policy, or train a model on a pattern that exists only "
+            "behind the doorway, not in the world."
         ),
-        md("## 5. Visualize it"),
+        md(
+            "## 5. Visualize it\n\n"
+            "Two scatter plots side by side — the full pool next to the "
+            "admitted subset — make the manufactured pattern visible at a "
+            "glance."
+        ),
         code(
             'fig, axes = plt.subplots(1, 2, figsize=(12, 5))\n'
             'apps.plot(kind="scatter", x="ability", y="portfolio_score",\n'
@@ -765,7 +949,11 @@ collider_cells = (
             "`loc` selects by labels: rows by condition, columns by name."
         ),
         code('apps.loc[:, ["ability", "portfolio_score", "admitted"]].head()'),
-        md("## 8. Rows and columns together with `loc`"),
+        md(
+            "## 8. Rows and columns together with `loc`\n\n"
+            "`loc` accepts a row condition and a column list in one call "
+            "— filter and select in a single step, no chaining needed."
+        ),
         code('apps.loc[apps["admitted"] == True, ["ability", "portfolio_score"]].head()'),
         md(
             "## 9. Position selection with `df.iloc[]`\n\n"
@@ -785,14 +973,19 @@ collider_cells = (
             'print(selected_corr)'
         ),
         md(
-            "## Collection questions\n\n"
-            "For every dataset, ask:\n\n"
-            "- Who was eligible?\n"
-            "- Who was actually measured?\n"
-            "- Who is absent?\n"
-            "- Who had to pass through a doorway to be here?\n\n"
-            "Real-world colliders: hospitals, elite schools, customer support "
-            "tickets, dating apps, product reviews, job interviews."
+            "## Why this matters to a data scientist\n\n"
+            "Almost every real dataset went through a doorway before it "
+            "reached you: hospital records contain the people sick enough "
+            "to come in, support tickets contain the customers annoyed "
+            "enough to write, loan-default data contains only the "
+            "applicants who were approved. The selection is invisible in "
+            "the table — the rows that did not make it leave no trace.\n\n"
+            "For AI this is a training-data problem. A default model "
+            "trained on approved loans has never seen the applicants the "
+            "old policy rejected, so it inherits the old policy's blind "
+            "spots — and it can learn manufactured trade-offs exactly "
+            "like the one above. Before modeling, always ask: *who had "
+            "to pass through what doorway for this row to exist?*"
         ),
         md(
             "## Takeaway\n\n"
@@ -856,7 +1049,12 @@ rtm_cells = (
             '])\n'
             'extremes.shape'
         ),
-        md("## 5. Visualize the drift"),
+        md(
+            "## 5. Visualize the drift\n\n"
+            "One scatter of change against baseline shows the whole "
+            "phenomenon — every student is a dot, and the red dashed line "
+            "marks 'no change'."
+        ),
         code(
             'ax = scores.plot(kind="scatter", x="baseline_score", y="change",\n'
             '                 alpha=0.3, title="Change vs. baseline score")\n'
@@ -888,6 +1086,23 @@ rtm_cells = (
             "**Real-world examples:** bad sales months rebound, "
             "career-best athletes decline, angry customers calm down, "
             "extreme stores normalize."
+        ),
+        md(
+            "## Why this matters to a data scientist\n\n"
+            "Any process that *selects on an extreme and then "
+            "re-measures* will show this drift: the worst-performing "
+            "stores 'improve' after a management visit, the "
+            "lowest-engagement users 'respond' to the win-back email, "
+            "last week's bad model metrics 'recover' after an emergency "
+            "retrain. In every case, part — sometimes all — of the "
+            "improvement is regression to the mean, not your "
+            "intervention.\n\n"
+            "This is exactly why A/B tests have control groups: the "
+            "control arm shows how much drift-back happens with *no* "
+            "intervention, so the treatment only gets credit for the "
+            "difference. When there is no control group, treat every "
+            "before/after story that starts from an extreme with "
+            "suspicion — including your own."
         ),
         md(
             "## Takeaway\n\n"
@@ -933,7 +1148,13 @@ misleading_cells = (
         code("churn.dtypes"),
         md("## 4. Convert with `df.astype()`\n\nUse `astype()` when the intended type is clear."),
         code('churn["churned"] = churn["churned"].astype("bool")\nchurn["churned"].dtype'),
-        md("## 5. Convert dates with `pd.to_datetime()`"),
+        md(
+            "## 5. Convert dates with `pd.to_datetime()`\n\n"
+            "`pd.to_datetime()` turns date text into real datetime values "
+            "— until then, 'dates' are just strings that sort "
+            "alphabetically and cannot be compared, subtracted, or "
+            "bucketed by year."
+        ),
         code('churn["signup_date"] = pd.to_datetime(churn["signup_date"])\nchurn["signup_date"].dtype'),
         md(
             "## 6. Find suspicious correlations\n\n"
@@ -992,6 +1213,21 @@ misleading_cells = (
             "EDA, and which would you justify dropping in writing?"
         ),
         md(
+            "## Why this matters to an AI engineer\n\n"
+            "Leakage is the most common way a machine-learning project "
+            "fails *silently*. A leaky feature makes the offline model "
+            "look outstanding — `refund_after_churn` can predict churn "
+            "almost perfectly — and then the model collapses in "
+            "production, because at prediction time the churn has not "
+            "happened yet and the feature's value does not exist.\n\n"
+            "No error message will ever tell you this. The offline "
+            "metrics get *better* as the leak gets worse — which is "
+            "exactly backwards. The only defense is the audit you just "
+            "did: for every column, ask *when* its value becomes known, "
+            "and drop — in writing — everything that is not knowable at "
+            "prediction time."
+        ),
+        md(
             "## Takeaway\n\n"
             "Functions introduced / reinforced: `pd.read_html`, `columns`, "
             "`dtypes`, `astype`, `to_datetime`, `select_dtypes`, `corr`, "
@@ -1014,62 +1250,12 @@ NOTEBOOKS = {
 }
 
 
-# Style rule: numbered section headings (## N. ...) stay heading-only — no
-# descriptive subheading sentence underneath. The only exceptions are headings
-# whose body carries genuine teaching the code alone does not convey: the
-# per-notebook file-format explanations (the "Load ..." steps) and the
-# Datasaurus test-row / dtype lesson. List those exact heading lines here.
-PRESERVE_SUBTEXT_HEADINGS = {
-    # Datasaurus test-row / dtype lesson
-    "## 3. Last glance with `df.tail()`",
-    "## 8. Data types with `df.dtypes`",
-    "## 9. Isolate numeric columns with `df.select_dtypes()`",
-    "## 10. Clean the bad row, then fix the types",
-    # File-format explanations (one per notebook); nb1 loads plain CSV so its
-    # "Load the evidence" step is intentionally NOT preserved.
-    # nb03 merge lesson: the survivor-only press-directory premise and the
-    # inner-vs-left consequence are not visible in the code alone.
-    "## 10. Joining tables with `pd.merge()`",
-    "## 1. Load the trial data",
-    "## 1. Load the startup dataset",
-    "## 1. Load the gaming dataset",
-    "## 1. Load the admissions data",
-    "## 1. Load the score dataset",
-    "## 1. Load the churn dataset",
-}
-
 # Extra whitespace (px) above each numbered section heading, applied to every
 # notebook so the sections read as clearly separated teaching blocks. 224px was
 # chosen after comparing several gap sizes in nb00/nb01.
 SECTION_GAP_PX = 224
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
-
-
-def strip_section_subtext(cells: list[dict]) -> list[dict]:
-    """Reduce numbered `## N.` heading cells to the heading line only.
-
-    Keeps the body for headings in PRESERVE_SUBTEXT_HEADINGS. Non-numbered
-    markdown cells (## The story, ## Discussion, ## Takeaway, standalone
-    explanation paragraphs) are left untouched.
-    """
-    out: list[dict] = []
-    for cell in cells:
-        if cell["cell_type"] == "markdown":
-            body = "".join(cell["source"])
-            if body.startswith(MD_WRAP_OPEN):
-                body = body[len(MD_WRAP_OPEN):]
-            if body.endswith(MD_WRAP_CLOSE):
-                body = body[: -len(MD_WRAP_CLOSE)]
-            body = body.strip()
-            first_line = body.splitlines()[0] if body else ""
-            if (
-                _NUMBERED_HEADING.match(first_line)
-                and first_line not in PRESERVE_SUBTEXT_HEADINGS
-            ):
-                cell = md(first_line)
-        out.append(cell)
-    return out
 
 
 def add_section_gap(cells: list[dict], gap_px: int) -> list[dict]:
@@ -1260,11 +1446,91 @@ def build_datasaurus_summary_image() -> None:
     print(f"Wrote {IMAGES_DIR / 'datasaurus_summary.png'}")
 
 
+def build_merge_diagram_image() -> None:
+    """Render the inner-vs-left merge diagram embedded in nb03 section 10.
+
+    Cartoon tables: `startups` (survivors + failures) merged against a
+    survivor-only `press` table. how='inner' silently drops the failed rows;
+    how='left' keeps everyone and marks the missing stories NaN.
+    """
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyArrowPatch, Rectangle
+
+    SURV = "#a5cf8d"   # survivors (they have press coverage)
+    FAIL = "#d4d4d4"   # failed startups
+    STORY = "#ffffff"
+    NAN = "#f5e9c9"    # the left join's "no match" cells
+
+    row_h, cell_w, gap = 0.55, 1.45, 0.06
+
+    fig, ax = plt.subplots(figsize=(12, 7.2))
+    ax.set_xlim(0, 12.4)
+    ax.set_ylim(0, 9.0)
+    ax.axis("off")
+
+    def draw_table(x, top, title, rows, caption=None):
+        ncols = len(rows[0])
+        width = ncols * cell_w + (ncols - 1) * gap
+        ax.text(x + width / 2, top + 0.15, title, ha="center", va="bottom",
+                fontsize=13, fontweight="bold")
+        for r, cells in enumerate(rows):
+            y = top - (r + 1) * (row_h + gap)
+            for c, (txt, color) in enumerate(cells):
+                ax.add_patch(Rectangle((x + c * (cell_w + gap), y),
+                                       cell_w, row_h,
+                                       facecolor=color, edgecolor="0.45"))
+                ax.text(x + c * (cell_w + gap) + cell_w / 2, y + row_h / 2,
+                        txt, ha="center", va="center", fontsize=11)
+        if caption:
+            y = top - len(rows) * (row_h + gap) - 0.42
+            ax.text(x + width / 2, y, caption, ha="center", va="center",
+                    fontsize=11, style="italic", color="0.25")
+
+    draw_table(0.5, 7.9, "startups — everyone",
+               [[("S1", SURV)], [("S2", SURV)], [("F1", FAIL)],
+                [("F2", FAIL)], [("F3", FAIL)]])
+    draw_table(0.5, 3.1, "press — survivors only",
+               [[("S1", SURV), ("story", STORY)],
+                [("S2", SURV), ("story", STORY)]])
+
+    draw_table(7.6, 8.2, 'how="inner"  (the default)',
+               [[("S1", SURV), ("story", STORY)],
+                [("S2", SURV), ("story", STORY)]],
+               caption="failed startups silently vanish")
+    draw_table(7.6, 4.6, 'how="left"',
+               [[("S1", SURV), ("story", STORY)],
+                [("S2", SURV), ("story", STORY)],
+                [("F1", FAIL), ("NaN", NAN)],
+                [("F2", FAIL), ("NaN", NAN)],
+                [("F3", FAIL), ("NaN", NAN)]],
+               caption="everyone kept — no story becomes NaN")
+
+    for start, end in [((4.3, 5.6), (7.3, 7.5)), ((4.3, 4.4), (7.3, 3.2))]:
+        ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>",
+                                     mutation_scale=18, color="0.35", lw=1.6))
+    ax.text(5.8, 7.0, "merge", ha="center", fontsize=12, color="0.3")
+    ax.text(5.8, 3.4, "merge", ha="center", fontsize=12, color="0.3")
+
+    for x, color, label in [(0.5, SURV, "survived"), (2.6, FAIL, "failed")]:
+        ax.add_patch(Rectangle((x, 0.25), 0.45, 0.35, facecolor=color,
+                               edgecolor="0.45"))
+        ax.text(x + 0.58, 0.42, label, va="center", fontsize=11)
+
+    IMAGES_DIR.mkdir(exist_ok=True)
+    fig.savefig(IMAGES_DIR / "merge_inner_left.png", dpi=110,
+                bbox_inches="tight")
+    plt.close(fig)
+    print(f"Wrote {IMAGES_DIR / 'merge_inner_left.png'}")
+
+
 def main() -> None:
     build_datasaurus_summary_image()
+    build_merge_diagram_image()
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
-        cells = hoist_takeaway(strip_mini_labs(strip_section_subtext(cells)))
+        cells = hoist_takeaway(strip_mini_labs(cells))
         cells = add_section_gap(cells, SECTION_GAP_PX)
         nb = notebook(cells)
         path = out_dir / name

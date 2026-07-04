@@ -78,8 +78,11 @@ body { max-width: 1500px; margin: 0 auto; }
     --jp-code-font-size: 15px;
     --jp-code-presentation-font-size: 15px;
   }
+  /* The lab theme wraps output text (white-space: pre-wrap), which mangles
+     aligned tables on a narrow screen; keep output lines intact and let the
+     overflow-x: auto container above make them swipeable instead. */
   .jp-RenderedText pre,
-  .jp-OutputArea-output pre { font-size: 15px; }
+  .jp-OutputArea-output pre { font-size: 15px; white-space: pre; }
   .jp-RenderedHTMLCommon p,
   .jp-RenderedHTMLCommon li { font-size: 18px; }
   .jp-RenderedHTMLCommon h1 { font-size: 30px; }

@@ -1231,15 +1231,20 @@ def build_datasaurus_summary_image() -> None:
         return min(ts)
 
     pad = 0.006
+    renderer = fig.canvas.get_renderer()
     for name, (r, c) in positions.items():
-        p = axes[r][c].get_position()
-        px, py = (p.x0 + p.x1) / 2, (p.y0 + p.y1) / 2
+        # Use the tight bbox (scatter + title) so arrows stop short of the
+        # panel title instead of piercing it — get_position() excludes titles.
+        t = axes[r][c].get_tightbbox(renderer)
+        px0, py0 = inv.transform((t.x0, t.y0))
+        px1, py1 = inv.transform((t.x1, t.y1))
+        px, py = (px0 + px1) / 2, (py0 + py1) / 2
         ux, uy = px - cx, py - cy
         norm = (ux ** 2 + uy ** 2) ** 0.5
         ux, uy = ux / norm, uy / norm
         tb = ray_exit(cx, cy, ux, uy, bx0, by0, bx1, by1)        # leave the box
         sx, sy = cx + ux * (tb + pad), cy + uy * (tb + pad)
-        tp = ray_exit(px, py, -ux, -uy, p.x0, p.y0, p.x1, p.y1)  # reach the panel
+        tp = ray_exit(px, py, -ux, -uy, px0, py0, px1, py1)      # reach the panel
         ex, ey = px - ux * (tp + pad), py - uy * (tp + pad)
         fig.add_artist(FancyArrowPatch(
             (sx, sy), (ex, ey), transform=fig.transFigure,

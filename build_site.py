@@ -43,6 +43,13 @@ EXTRA_LINKS = {
 # Code (input + text output) is driven by --jp-code-font-size in the nbconvert
 # `lab` template; we lift it to a 30px floor and scale prose/headers above it so
 # the visual hierarchy stays headers > prose > code.
+#
+# Mobile: wide cells (code, text output, dataframes) scroll horizontally inside
+# their own box instead of stretching the page (overflow-x: auto is inert on
+# desktop where nothing overflows), images shrink to the screen, and a
+# max-width media query steps every font size down so prose fits a phone. The
+# in-notebook markdown wrapper divs carry inline font-size/margin styles, so
+# the mobile overrides for those need !important.
 CUSTOM_CSS = """
 <style>
 :root {
@@ -60,6 +67,32 @@ CUSTOM_CSS = """
 .jp-RenderedHTMLCommon table,
 .dataframe, .dataframe th, .dataframe td { font-size: 30px; }
 body { max-width: 1500px; margin: 0 auto; }
+
+.jp-Cell-inputWrapper .highlight,
+.jp-OutputArea-output,
+.jp-RenderedHTMLCommon { overflow-x: auto; }
+.jp-RenderedHTMLCommon img { max-width: 100%; height: auto; }
+
+@media (max-width: 700px) {
+  :root {
+    --jp-code-font-size: 15px;
+    --jp-code-presentation-font-size: 15px;
+  }
+  .jp-RenderedText pre,
+  .jp-OutputArea-output pre { font-size: 15px; }
+  .jp-RenderedHTMLCommon p,
+  .jp-RenderedHTMLCommon li { font-size: 18px; }
+  .jp-RenderedHTMLCommon h1 { font-size: 30px; }
+  .jp-RenderedHTMLCommon h2 { font-size: 25px; }
+  .jp-RenderedHTMLCommon h3 { font-size: 21px; }
+  .jp-RenderedHTMLCommon h4 { font-size: 19px; }
+  .jp-RenderedHTMLCommon table,
+  .dataframe, .dataframe th, .dataframe td { font-size: 14px; }
+  .jp-RenderedHTMLCommon div[style] { font-size: 18px !important; }
+  .jp-RenderedHTMLCommon div[style*="margin-top"] {
+    margin-top: 80px !important;
+  }
+}
 </style>
 """
 

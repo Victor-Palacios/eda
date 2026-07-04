@@ -86,6 +86,24 @@ def inline_local_images(html: str, nbdir: Path) -> str:
     return re.sub(r'src="(\.\./images/[^"]+)"', repl, html)
 
 
+def notebook_functions(nb) -> list[str]:
+    """Function names credited in the notebook's Takeaway cell.
+
+    Collects the backticked names from every 'Functions ...' / 'From the ...'
+    line so the index can show what each notebook teaches.
+    """
+    for cell in nb.cells:
+        if cell.cell_type != "markdown" or "## Takeaway" not in "".join(cell.source):
+            continue
+        names: list[str] = []
+        for line in "".join(cell.source).splitlines():
+            if re.match(r"\s*(Functions|From the)", line):
+                names.extend(n for n in re.findall(r"`([^`]+)`", line)
+                             if n not in names)
+        return names
+    return []
+
+
 def notebook_title(nb) -> str:
     """First H1 in the notebook, falling back to the file stem."""
     for cell in nb.cells:
@@ -121,16 +139,20 @@ def build() -> None:
             out = out_dir / f"{ipynb.stem}.html"
             out.write_text(html)
             title = notebook_title(nb) or ipynb.stem
-            items.append((f"{slug}/{out.name}", title))
+            items.append((f"{slug}/{out.name}", title, notebook_functions(nb)))
             print(f"Wrote {out}")
             for label_text, url in EXTRA_LINKS.get(ipynb.stem, []):
-                items.append((url, label_text))
+                items.append((url, label_text, []))
 
-        def render_link(href: str, title: str) -> str:
+        def render_link(href: str, title: str, fns: list[str]) -> str:
             attrs = ' target="_blank" rel="noopener"' if href.startswith("http") else ""
-            return f'    <li><a href="{href}"{attrs}>{html_lib.escape(title)}</a></li>'
+            line = f'    <li><a href="{href}"{attrs}>{html_lib.escape(title)}</a>'
+            if fns:
+                codes = " ".join(f"<code>{html_lib.escape(fn)}</code>" for fn in fns)
+                line += f'\n      <div class="fns">{codes}</div>'
+            return line + "</li>"
 
-        links = "\n".join(render_link(href, title) for href, title in items)
+        links = "\n".join(render_link(href, title, fns) for href, title, fns in items)
         sections.append(f"  <h2>{html_lib.escape(label)}</h2>\n  <ul>\n{links}\n  </ul>")
 
     index = f"""<!doctype html>
@@ -147,7 +169,10 @@ def build() -> None:
   a {{ color: #1565c0; text-decoration: none; }}
   a:hover {{ text-decoration: underline; }}
   ul {{ list-style: none; padding-left: 0; }}
-  li {{ margin: 0.4em 0; }}
+  li {{ margin: 0.4em 0 1em; }}
+  .fns {{ margin-top: 0.15em; line-height: 1.9; }}
+  .fns code {{ font-size: 15px; color: #444; background: #f2f2f2;
+               border-radius: 4px; padding: 1px 7px; white-space: nowrap; }}
 </style>
 </head>
 <body>

@@ -535,9 +535,26 @@ survivorship_cells = (
             'print(f"Survivor-only average revenue: {biased:.2f}M")\n'
             'print(f"All startups (failed = 0):     {honest_zero_fill:.2f}M")'
         ),
-        md("## 10. Duplicate rows with `df.duplicated()`\n\nDuplicates are another row-level distortion."),
+        md(
+            "## 10. Joining tables with `pd.merge()`\n\n"
+            "Joins can *create* survivorship bias. A press directory only "
+            "writes about companies that are still alive — merge against it "
+            "with the default `how='inner'` and every failed startup "
+            "silently disappears. `how='left'` keeps the full population."
+        ),
+        code(
+            'press = survivors_only[["startup_id"]].copy()\n'
+            'press["press_article"] = "feature story"\n'
+            '\n'
+            'inner = startups.merge(press, on="startup_id")\n'
+            'left = startups.merge(press, on="startup_id", how="left")\n'
+            'print("all startups:      ", startups.shape)\n'
+            'print("inner merge result:", inner.shape, " <- failures silently gone")\n'
+            'print("left merge result: ", left.shape)'
+        ),
+        md("## 11. Duplicate rows with `df.duplicated()`\n\nDuplicates are another row-level distortion."),
         code("startups.duplicated().sum()"),
-        md("## 11. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
+        md("## 12. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
         code(
             'clean = startups.drop_duplicates()\n'
             'print(startups.shape, clean.shape)'
@@ -566,8 +583,8 @@ survivorship_cells = (
         md(
             "## Takeaway\n\n"
             "Functions introduced: `pd.read_json`, `isna`, `isna().sum`, "
-            "`value_counts`, `pd.crosstab`, `fillna`, `dropna`, `duplicated`, "
-            "`drop_duplicates`.\n\n"
+            "`value_counts`, `pd.crosstab`, `fillna`, `dropna`, `pd.merge`, "
+            "`duplicated`, `drop_duplicates`.\n\n"
             "**Concept learned: missing rows and missing values are evidence.**"
         ),
     ]
@@ -1007,6 +1024,9 @@ PRESERVE_SUBTEXT_HEADINGS = {
     "## 10. Clean the bad row, then fix the types",
     # File-format explanations (one per notebook); nb1 loads plain CSV so its
     # "Load the evidence" step is intentionally NOT preserved.
+    # nb03 merge lesson: the survivor-only press-directory premise and the
+    # inner-vs-left consequence are not visible in the code alone.
+    "## 10. Joining tables with `pd.merge()`",
     "## 1. Load the trial data",
     "## 1. Load the startup dataset",
     "## 1. Load the gaming dataset",

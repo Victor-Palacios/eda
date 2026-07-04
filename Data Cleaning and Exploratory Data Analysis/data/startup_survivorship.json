@@ -19198,5 +19198,29 @@
     "market_score":-0.64,
     "survived_3yr":false,
     "year3_revenue_millions":null
+  },
+  {
+    "startup_id":13,
+    "sector":"Fintech",
+    "seed_funding_millions":4.01,
+    "market_score":0.27,
+    "survived_3yr":false,
+    "year3_revenue_millions":null
+  },
+  {
+    "startup_id":68,
+    "sector":"Fintech",
+    "seed_funding_millions":0.23,
+    "market_score":0.11,
+    "survived_3yr":false,
+    "year3_revenue_millions":null
+  },
+  {
+    "startup_id":156,
+    "sector":"Retail",
+    "seed_funding_millions":0.13,
+    "market_score":-1.05,
+    "survived_3yr":false,
+    "year3_revenue_millions":null
   }
 ]

@@ -18,6 +18,14 @@ the `.ipynb` files.
 
 ## P0 — The notebook's own output contradicts its narrative
 
+> **Status: all three P0 items are fixed.** nb02's trial data was regenerated
+> with a genuine flip (treatment wins both strata 0.35 vs 0.28 and 0.90 vs
+> 0.83, loses overall 0.46 vs 0.72); three duplicate failed-startup rows were
+> planted in the survivorship JSON (`duplicated().sum()` now reports 3, and the
+> §10 merge shapes stay clean because failed rows never enter the press table);
+> and the nb05 narrative now says selection **created** a correlation. The
+> original findings are kept below for the record.
+
 ### 1. Notebook 02 (Simpson's): the flip only happens in one of the two groups
 
 The story cell promises: *"Inside both risk groups, the treatment performs

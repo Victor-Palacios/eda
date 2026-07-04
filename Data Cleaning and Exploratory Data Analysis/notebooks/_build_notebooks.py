@@ -737,9 +737,12 @@ collider_cells = (
         code('apps[["ability", "portfolio_score"]].corr()'),
         code('admitted[["ability", "portfolio_score"]].corr()'),
         md(
-            "Notice the correlation flips sign or weakens dramatically. "
-            "That is collider bias in action — conditioning on `admitted` "
-            "induced a relationship that was not there in the full pool."
+            "In the full pool the two scores are essentially uncorrelated — "
+            "ability and portfolio are independent traits. Inside the "
+            "admitted group, a strong *negative* correlation appears out of "
+            "nowhere. That is collider bias in action — conditioning on "
+            "`admitted` **created** a relationship that does not exist in "
+            "the full pool."
         ),
         md("## 5. Visualize it"),
         code(

@@ -4,11 +4,13 @@
 - Do **not** use the words "wild" or "wildly" anywhere (notebooks, markdown,
   comments, commit messages). Prefer alternatives like "dramatically",
   "very", "strikingly".
-- Avoid aphoristic antithesis — the "not X; it's Y" negation-reframe
-  construction (e.g. "Garbage in, garbage out is not a slogan; it is the
-  mechanism", "X is a modeling decision, not cleanup") and punchy one-line
-  epigrams generally. State the point directly with concrete information
-  instead of a dramatic contrast.
+- No pure-drama antithesis. The "not X; it's Y" negation-reframe and other
+  punchy epigrams are banned when they add no new information — the test is:
+  if deleting the sentence loses no facts, delete it (e.g. "Garbage in,
+  garbage out is not a slogan; it is the mechanism" fails the test). A
+  contrast that carries real content is fine (e.g. "Imputation is a modeling
+  decision, not cleanup — document and justify it" tells the reader how to
+  treat imputation).
 - Every numbered section heading (`## 1. ...`, `## 2. ...`) is followed, in
   the same markdown cell, by a short "why use this function" explanation —
   one or two sentences on what the function does and why a data scientist

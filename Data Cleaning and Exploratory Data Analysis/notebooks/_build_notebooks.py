@@ -1005,6 +1005,7 @@ rtm_cells = (
     setup_cells(
         "Regression to the Mean: Extremes Drift Back",
         "Before/after stories are tempting — extreme baselines make them dangerous",
+        hook_image="../images/regression_to_mean.png",
     )
     + [
         md(

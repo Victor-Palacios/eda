@@ -304,10 +304,12 @@ datasaurus_cells = (
         ),
         md(
             "## 1. Load the Datasaurus Dozen\n\n"
-            "`pd.read_csv()` loads the raw points: one row per (x, y) "
-            "pair, tagged with which of the 13 datasets it belongs to."
+            "The data ships as an Excel workbook. `pd.read_excel()` loads "
+            "the raw points the same way `read_csv` would — one row per "
+            "(x, y) pair, tagged with which of the 13 datasets it belongs "
+            "to — you just point it at the `.xlsx` file instead."
         ),
-        code('dino = pd.read_csv("../data/datasaurus_dozen.csv")\ndino.head()'),
+        code('dino = pd.read_excel("../data/datasaurus_dozen.xlsx")\ndino.head()'),
         md(
             "## 2. The summary statistics look identical\n\n"
             "`groupby(\"dataset\")` splits the table into the 13 sets, and "
@@ -584,7 +586,16 @@ survivorship_cells = (
             'print(survivors_only["sector"].value_counts())'
         ),
         md(
-            "## 9. The biased headline vs. the honest one\n\n"
+            "## 9. Survived vs. failed per sector with `unstack()`\n\n"
+            "`groupby([\"sector\", \"survived_3yr\"]).size()` counts rows for "
+            "every (sector, outcome) pair, but returns a hard-to-read "
+            "stacked Series; `unstack()` pivots the inner level into columns "
+            "so you get a readable sector × outcome table. The `False` "
+            "column is exactly the failures that `dropna` threw away."
+        ),
+        code('startups.groupby(["sector", "survived_3yr"]).size().unstack()'),
+        md(
+            "## 10. The biased headline vs. the honest one\n\n"
             "What does the headline 'average startup revenue' look like "
             "from each table?"
         ),
@@ -595,7 +606,7 @@ survivorship_cells = (
             'print(f"All startups (failed = 0):     {honest_zero_fill:.2f}M")'
         ),
         md(
-            "## 10. Joining tables with `pd.merge()`\n\n"
+            "## 11. Joining tables with `pd.merge()`\n\n"
             "Joins can *create* survivorship bias. A press directory only "
             "writes about companies that are still alive — merge against it "
             "with the default `how='inner'` and every failed startup "
@@ -612,9 +623,9 @@ survivorship_cells = (
             'print("inner merge result:", inner.shape, " <- failures silently gone")\n'
             'print("left merge result: ", left.shape)'
         ),
-        md("## 11. Find duplicates with `df.duplicated()`\n\n`duplicated()` flags every row that is an exact copy of an earlier one — duplicates silently double-count whatever you sum or average."),
+        md("## 12. Find duplicates with `df.duplicated()`\n\n`duplicated()` flags every row that is an exact copy of an earlier one — duplicates silently double-count whatever you sum or average."),
         code("startups.duplicated().sum()"),
-        md("## 12. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
+        md("## 13. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
         code(
             'clean = startups.drop_duplicates()\n'
             'print(startups.shape, clean.shape)'
@@ -719,7 +730,7 @@ survivorship_cells = (
             'print(f"Survivor-only headline:   {revenue_if_survive:.2f}M  <- almost 4x too optimistic")'
         ),
         md(
-            "This also explains why the zero-fill average in section 9 "
+            "This also explains why the zero-fill average in section 10 "
             "was defensible *here*: in this dataset, missing revenue "
             "really does mean \"failed, earned nothing\", so the zero-fill "
             "mean and the two-stage estimate agree. When missing instead "
@@ -730,8 +741,8 @@ survivorship_cells = (
         md(
             "## Takeaway\n\n"
             "Functions introduced: `pd.read_json`, `isna`, "
-            "`value_counts`, `pd.crosstab`, `fillna`, `dropna`, `pd.merge`, "
-            "`duplicated`, `drop_duplicates`.\n\n"
+            "`value_counts`, `pd.crosstab`, `unstack`, `fillna`, `dropna`, "
+            "`pd.merge`, `duplicated`, `drop_duplicates`.\n\n"
             "**Concept learned: missing rows and missing values are "
             "evidence. A model trained only on survivors learns the wrong "
             "population — model what is observed for everyone (survival) "
@@ -1346,7 +1357,7 @@ def build_datasaurus_summary_image() -> None:
     """Render the Datasaurus "same stats, different shapes" hook infographic.
 
     A central box of the (near-identical) summary statistics with arrows out
-    to eight of the thirteen shapes, drawn from the real datasaurus_dozen.csv.
+    to eight of the thirteen shapes, drawn from the real datasaurus_dozen.xlsx.
     Saved to images/datasaurus_summary.png and embedded at the top of nb01.
     """
     import matplotlib
@@ -1355,7 +1366,7 @@ def build_datasaurus_summary_image() -> None:
     import pandas as pd
     from matplotlib.patches import FancyArrowPatch
 
-    df = pd.read_csv(DATA_DIR / "datasaurus_dozen.csv")
+    df = pd.read_excel(DATA_DIR / "datasaurus_dozen.xlsx")
     g = df.groupby("dataset")
     stats = g[["x", "y"]].agg(["mean", "std"])
     xmean = stats[("x", "mean")].mean()
@@ -1452,7 +1463,7 @@ def build_datasaurus_summary_image() -> None:
 
 
 def build_merge_diagram_image() -> None:
-    """Render the inner-vs-left merge diagram embedded in nb03 section 10.
+    """Render the inner-vs-left merge diagram embedded in nb03 section 11.
 
     Cartoon tables: `startups` (survivors + failures) merged against a
     survivor-only `press` table. how='inner' silently drops the failed rows;

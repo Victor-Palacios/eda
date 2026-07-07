@@ -441,6 +441,7 @@ simpsons_cells = (
     setup_cells(
         "Simpson's Paradox: The Group Flips the Story",
         "Overall metrics can reverse inside groups",
+        hook_image="../images/Simpsons_Paradox.png",
     )
     + [
         md(
@@ -533,6 +534,7 @@ survivorship_cells = (
     setup_cells(
         "Survivorship Bias: Missing Failures Are Still Evidence",
         "Missing rows and missing values are clues, not noise",
+        hook_image="../images/survivorship_bias.png",
     )
     + [
         md(
@@ -745,6 +747,7 @@ whales_cells = (
     setup_cells(
         "Gaming Whales and Dolphins: Outliers Run the Economy",
         "Outliers can be errors, edge cases, or the whole story",
+        hook_image="../images/whales.png",
     )
     + [
         md(
@@ -867,6 +870,7 @@ collider_cells = (
     setup_cells(
         "Collider Bias: Selection Changes the Evidence",
         "A dataset is not just data — it is the result of a selection process",
+        hook_image="../images/collider_bias.png",
     )
     + [
         md(
@@ -1119,6 +1123,7 @@ misleading_cells = (
     setup_cells(
         "Misleading Variables: Some Columns Are Traps",
         "Cleanup is not housekeeping — it is deciding what evidence belongs",
+        hook_image="../images/Misleading_Variables.png",
     )
     + [
         md(

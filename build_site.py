@@ -82,7 +82,11 @@ body { max-width: 1500px; margin: 0 auto; }
      aligned tables on a narrow screen; keep output lines intact and let the
      overflow-x: auto container above make them swipeable instead. */
   .jp-RenderedText pre,
-  .jp-OutputArea-output pre { font-size: 15px; white-space: pre; }
+  .jp-OutputArea-output pre {
+    font-size: 15px;
+    white-space: pre;
+    -webkit-overflow-scrolling: touch;
+  }
   .jp-RenderedHTMLCommon p,
   .jp-RenderedHTMLCommon li { font-size: 18px; }
   .jp-RenderedHTMLCommon h1 { font-size: 30px; }
@@ -91,6 +95,18 @@ body { max-width: 1500px; margin: 0 auto; }
   .jp-RenderedHTMLCommon h4 { font-size: 19px; }
   .jp-RenderedHTMLCommon table,
   .dataframe, .dataframe th, .dataframe td { font-size: 14px; }
+  /* A DataFrame renders as <table> inside an unclassed pandas <div> whose
+     overflow is visible, so the table overflows *through* it and the outer
+     .jp-OutputArea-output scroll container never gets a scroll range — the
+     table stays clipped and unswipeable. Make the table its own horizontal
+     scroller so a wide DataFrame can be swiped on a phone. */
+  .jp-RenderedHTMLCommon table.dataframe {
+    display: block;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
   .jp-RenderedHTMLCommon div[style] { font-size: 18px !important; }
   .jp-RenderedHTMLCommon div[style*="margin-top"] {
     margin-top: 80px !important;

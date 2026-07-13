@@ -13,13 +13,27 @@
   treat imputation).
 - Every numbered section heading (`## 1. ...`, `## 2. ...`) is followed, in
   the same markdown cell, by a short "why use this function" explanation —
-  one or two sentences on what the function does and why a data scientist
-  reaches for it (e.g. "`pd.read_excel()` opens it the same way
-  `pd.read_csv()` opens a CSV — you point it at a path and get back a
-  DataFrame."). This replaced the earlier heading-only rule.
+  one or two sentences. The sentence must give the **reason the function is
+  used here and what it will reveal in this data**, not just restate what the
+  function does. Bad (banned): "Correlation helps describe the link between
+  baseline, follow-up, and change" — a generic definition that tells the
+  reader nothing to look for. Good: name the payoff, e.g. "We compute the
+  correlations to put a number on the drift: baseline and change move in
+  *opposite* directions, the fingerprint of regression to the mean." A little
+  description of the function is fine as long as the sentence lands on why we
+  reach for it now and what the output should show.
 - Each notebook ends with a "Why this matters to a data scientist / AI
   engineer" section (before the Takeaway cell, which the generator hoists to
   the top) connecting the bias story to models and downstream pipelines.
+- Discussion sections pose the questions in normal text, then give the answer
+  in **white font** (`<div style="color: #ffffff;">…</div>`) so students must
+  highlight the block to reveal it. Precede the hidden block with a visible
+  note telling them the answer is in white and to highlight it.
+
+## Workflow
+- Push work **directly** to the active working branch (the repo's default
+  branch). Do **not** open pull requests unless absolutely necessary or
+  explicitly asked. Do not create extra branches; keep using the one branch.
 
 ## Structure
 - Course material is organized one folder per day, e.g.

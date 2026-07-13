@@ -554,9 +554,21 @@ survivorship_cells = (
         ),
         code('startups = pd.read_json("../data/startup_survivorship.json", orient="records")\nstartups.head()'),
         code("startups.info()"),
-        md("## 2. Missingness map with `df.isna()`\n\n`isna()` creates a True/False map of missingness."),
+        md(
+            "## 2. Missingness map with `df.isna()`\n\n"
+            "`isna()` returns a True/False grid marking where values are "
+            "absent, so you can see *which* rows lose revenue — the first "
+            "step in asking whether it goes missing for a reason (the "
+            "startup failed) rather than at random."
+        ),
         code("startups.isna().head()"),
-        md("## 3. Missing counts with `df.isna().sum()`\n\nCount absence by column."),
+        md(
+            "## 3. Missing counts with `df.isna().sum()`\n\n"
+            "Summing that True/False grid down each column turns the map "
+            "into a tally, so you can see revenue is missing far more often "
+            "than anything else — the clue that the missingness is tied to "
+            "the outcome, not scattered evenly."
+        ),
         code("startups.isna().sum().sort_values(ascending=False)"),
         md("## 4. Outcome counts\n\nSurvivorship analysis starts with the outcome distribution."),
         code('startups["survived_3yr"].value_counts()'),
@@ -844,7 +856,17 @@ whales_cells = (
             "## Discussion\n\n"
             "- A teammate reports 'the average player spends $X/month'. "
             "Why is this misleading?\n"
-            "- What number would be more honest to report instead?\n"
+            "- What number would be more honest to report instead?\n\n"
+            "*Try to answer first. The answer is written in **white** — "
+            "highlight the block below (drag your cursor across the empty "
+            "space) to reveal it.*\n\n"
+            "<p style=\"color: #ffffff;\"><strong>Answer.</strong> The mean "
+            "is dragged up by a handful of whales, so '&#36;X/month' "
+            "describes almost no actual player — most spend far less. Report "
+            "the <strong>median</strong> (about &#36;3 here, the 50% row of "
+            "<code>describe()</code>) with the quartiles, or the revenue-"
+            "share-by-segment table, so both the typical player and the "
+            "heavy tail are visible.</p>"
         ),
         md(
             "## Why this matters to a data scientist\n\n"
@@ -905,8 +927,10 @@ collider_cells = (
         code('apps["admitted"].value_counts()'),
         md(
             "## 3. Filter with `df.query()`\n\n"
-            "`query()` is the most readable way to express many row-selection "
-            "stories."
+            "The whole lesson is comparing admitted students against the "
+            "full pool, so we split them out with `query()` — the readable "
+            "way to write a row filter — and check the shapes to confirm "
+            "the doorway kept only a slice of the applicants."
         ),
         code(
             'admitted = apps.query("admitted == True")\n'
@@ -960,7 +984,9 @@ collider_cells = (
         code('apps.query("portfolio_score > 1 or ability > 1").shape'),
         md(
             "## 7. Column selection with `df.loc[]`\n\n"
-            "`loc` selects by labels: rows by condition, columns by name."
+            "We narrow to just the columns that drive the selection so the "
+            "table shows only what the analysis compares — `loc` does this "
+            "by *label*, taking rows by condition and columns by name."
         ),
         code('apps.loc[:, ["ability", "portfolio_score", "admitted"]].head()'),
         md(
@@ -971,7 +997,10 @@ collider_cells = (
         code('apps.loc[apps["admitted"] == True, ["ability", "portfolio_score"]].head()'),
         md(
             "## 9. Position selection with `df.iloc[]`\n\n"
-            "`iloc` is for quick position-based checks."
+            "When you just want a quick peek at the first few rows and "
+            "columns without naming any of them, `iloc` grabs them by "
+            "position — a fast way to confirm the table matches what the "
+            "label-based `loc` returned above."
         ),
         code("apps.iloc[:5, :4]"),
         md(
@@ -1103,7 +1132,14 @@ rtm_cells = (
             'plt.show()'
         ),
         md("Low baselines mostly rise; high baselines mostly fall. The line of zero change cuts diagonally through the cloud."),
-        md("## 6. Relationships with `df.corr()`\n\nCorrelation helps describe the link between baseline, follow-up, and change."),
+        md(
+            "## 6. Relationships with `df.corr()`\n\n"
+            "We compute the correlations to put a number on the drift: "
+            "`baseline` and `change` should move in *opposite* directions "
+            "(a strong negative value), which is the statistical "
+            "fingerprint of regression to the mean — not evidence that "
+            "anything actually changed the low scorers."
+        ),
         code('scores[["baseline_score", "followup_score", "change"]].corr()'),
         md(
             "## 7. Change scores need suspicion\n\n"
@@ -1126,7 +1162,18 @@ rtm_cells = (
             "- What would a fair comparison group look like?\n\n"
             "**Real-world examples:** bad sales months rebound, "
             "career-best athletes decline, angry customers calm down, "
-            "extreme stores normalize."
+            "extreme stores normalize.\n\n"
+            "*Try to answer first. The answer is written in **white** — "
+            "highlight the block below (drag your cursor across the empty "
+            "space) to reveal it.*\n\n"
+            "<p style=\"color: #ffffff;\"><strong>Answer.</strong> "
+            "Regression to the mean predicts the lowest scorers will rise "
+            "on a retest <em>even with no coaching</em>, so improvement by "
+            "itself proves nothing. You need a <strong>control group</strong> "
+            "of equally low-scoring students who were <em>not</em> coached "
+            "and were measured again; the intervention only worked if the "
+            "coached group improved by <em>more</em> than that control "
+            "group.</p>"
         ),
         md(
             "## Why this matters to a data scientist\n\n"
@@ -1188,7 +1235,13 @@ misleading_cells = (
         code("list(churn.columns)"),
         md("## 3. Type audit with `df.dtypes`\n\nTypes reveal disguised dates, booleans, and numbers."),
         code("churn.dtypes"),
-        md("## 4. Convert with `df.astype()`\n\nUse `astype()` when the intended type is clear."),
+        md(
+            "## 4. Convert with `df.astype()`\n\n"
+            "We cast `churned` to a real boolean with `astype()` so it "
+            "behaves in filters and math — a yes/no stored as text sorts "
+            "alphabetically and quietly breaks comparisons, so fixing the "
+            "type now prevents wrong answers later."
+        ),
         code('churn["churned"] = churn["churned"].astype("bool")\nchurn["churned"].dtype'),
         md(
             "## 5. Convert dates with `pd.to_datetime()`\n\n"
@@ -1252,7 +1305,18 @@ misleading_cells = (
             "- For each remaining column, when in the customer's lifetime "
             "is its value known? Before churn, at churn, or after?\n"
             "- Which columns would you keep for an honest churn-prediction "
-            "EDA, and which would you justify dropping in writing?"
+            "EDA, and which would you justify dropping in writing?\n\n"
+            "*Try to answer first. The answer is written in **white** — "
+            "highlight the block below (drag your cursor across the empty "
+            "space) to reveal it.*\n\n"
+            "<p style=\"color: #ffffff;\"><strong>Answer.</strong> Keep a "
+            "column only if its value already exists at the moment you would "
+            "predict churn — tenure, plan type, usage-to-date. Anything "
+            "known only <em>at</em> or <em>after</em> churn, like "
+            "<code>refund_after_churn</code>, is leakage and should be "
+            "dropped in writing with the reason: it inflates offline "
+            "accuracy and then disappears in production, because at "
+            "prediction time the churn has not happened yet.</p>"
         ),
         md(
             "## Why this matters to an AI engineer\n\n"

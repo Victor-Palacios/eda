@@ -1359,10 +1359,10 @@ NOTEBOOKS = {
 # Extra whitespace (px) above each numbered section heading, applied to every
 # notebook so the sections read as clearly separated teaching blocks. 224px was
 # chosen after comparing several gap sizes in nb00/nb01.
-SECTION_GAP_PX = 224
+SECTION_GAP_PX = 300
 # Gap above `### N.` sub-items (e.g. the "More ways data gets messy" list) so
 # consecutive numbered items read as clearly separated blocks.
-SUB_SECTION_GAP_PX = 224
+SUB_SECTION_GAP_PX = 300
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
 _NUMBERED_SUBHEADING = re.compile(r"^### \d+\.")
@@ -1650,16 +1650,9 @@ def main() -> None:
     build_datasaurus_summary_image()
     build_merge_diagram_image()
     out_dir = Path(__file__).resolve().parent
-    # Experiment: try a wider 300px gap (both major and sub) on the data-
-    # poisoning and datasaurus notebooks to see how it reads.
-    EXPERIMENT_GAP_PX = 300
-    experiment = {"00_inspect_and_clean.ipynb", "01_datasaurus_always_plot.ipynb"}
     for name, cells in NOTEBOOKS.items():
         cells = hoist_takeaway(strip_mini_labs(cells))
-        if name in experiment:
-            cells = add_section_gap(cells, EXPERIMENT_GAP_PX, EXPERIMENT_GAP_PX)
-        else:
-            cells = add_section_gap(cells, SECTION_GAP_PX, SUB_SECTION_GAP_PX)
+        cells = add_section_gap(cells, SECTION_GAP_PX, SUB_SECTION_GAP_PX)
         nb = notebook(cells)
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")

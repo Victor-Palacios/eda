@@ -16,6 +16,7 @@ import base64
 import html as html_lib
 import mimetypes
 import re
+import shutil
 from pathlib import Path
 
 import nbformat
@@ -28,6 +29,13 @@ SITE = ROOT / "_site"
 DAYS = [
     ("Data Cleaning and Exploratory Data Analysis", "Data Cleaning & EDA"),
 ]
+
+# Notebook stems to keep out of the published site. The notebook still lives
+# in the repo and is generated/executed as usual — it is only omitted from the
+# rendered Pages site and its index.
+EXCLUDE_STEMS = {
+    "05_collider_bias",
+}
 
 # External links to surface on the index right after a given notebook (keyed by
 # notebook stem). Each entry is (link label, URL) and opens in a new tab.
@@ -169,6 +177,9 @@ def notebook_title(nb) -> str:
 
 def build() -> None:
     exporter = HTMLExporter(embed_images=True)
+    # Rebuild from scratch so excluded/renamed notebooks leave no stale page.
+    if SITE.exists():
+        shutil.rmtree(SITE)
     SITE.mkdir(exist_ok=True)
     sections = []
 
@@ -181,6 +192,9 @@ def build() -> None:
 
         items = []
         for ipynb in sorted(nbdir.glob("[0-9]*.ipynb")):
+            if ipynb.stem in EXCLUDE_STEMS:
+                print(f"Skipping {ipynb.name} (excluded from site)")
+                continue
             nb = nbformat.read(ipynb, as_version=4)
             # resources path lets embed_images resolve ../images/... references.
             html, _ = exporter.from_notebook_node(

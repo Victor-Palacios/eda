@@ -1360,23 +1360,34 @@ NOTEBOOKS = {
 # notebook so the sections read as clearly separated teaching blocks. 224px was
 # chosen after comparing several gap sizes in nb00/nb01.
 SECTION_GAP_PX = 224
+# Smaller gap for `### N.` sub-items (e.g. the "More ways data gets messy"
+# list) so consecutive numbered items read as separated blocks without the
+# full major-section break.
+SUB_SECTION_GAP_PX = 120
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
+_NUMBERED_SUBHEADING = re.compile(r"^### \d+\.")
 
 
-def add_section_gap(cells: list[dict], gap_px: int) -> list[dict]:
-    """Add vertical whitespace above each numbered `## N.` section heading.
+def add_section_gap(
+    cells: list[dict], gap_px: int, sub_gap_px: int = 0
+) -> list[dict]:
+    """Add vertical whitespace above numbered section headings.
 
-    Widens the top margin of the heading cell's font wrapper so the sections
-    read as clearly separated blocks. `gap_px` is the extra space in pixels;
-    0 leaves cells untouched. Applied per-notebook so we can compare sizes.
+    Widens the top margin of the heading cell's font wrapper so sections read
+    as clearly separated blocks. `gap_px` applies to major `## N.` headings;
+    `sub_gap_px` (if set) applies to `### N.` sub-item headings. 0 leaves
+    cells untouched. Applied per-notebook so we can compare sizes.
     """
-    if not gap_px:
+    if not gap_px and not sub_gap_px:
         return cells
-    gap_open = (
-        f'<div style="font-size: 24px; line-height: 1.6; '
-        f'margin-top: {gap_px}px;">\n\n'
-    )
+
+    def gap_open(px: int) -> str:
+        return (
+            f'<div style="font-size: 24px; line-height: 1.6; '
+            f'margin-top: {px}px;">\n\n'
+        )
+
     out: list[dict] = []
     for cell in cells:
         if cell["cell_type"] == "markdown":
@@ -1384,8 +1395,13 @@ def add_section_gap(cells: list[dict], gap_px: int) -> list[dict]:
             if src.startswith(MD_WRAP_OPEN):
                 inner = src[len(MD_WRAP_OPEN):].lstrip()
                 first_line = inner.splitlines()[0] if inner else ""
-                if _NUMBERED_HEADING.match(first_line):
-                    new_src = gap_open + src[len(MD_WRAP_OPEN):]
+                px = 0
+                if gap_px and _NUMBERED_HEADING.match(first_line):
+                    px = gap_px
+                elif sub_gap_px and _NUMBERED_SUBHEADING.match(first_line):
+                    px = sub_gap_px
+                if px:
+                    new_src = gap_open(px) + src[len(MD_WRAP_OPEN):]
                     cell = {**cell, "source": new_src.splitlines(keepends=True)}
         out.append(cell)
     return out
@@ -1637,7 +1653,7 @@ def main() -> None:
     out_dir = Path(__file__).resolve().parent
     for name, cells in NOTEBOOKS.items():
         cells = hoist_takeaway(strip_mini_labs(cells))
-        cells = add_section_gap(cells, SECTION_GAP_PX)
+        cells = add_section_gap(cells, SECTION_GAP_PX, SUB_SECTION_GAP_PX)
         nb = notebook(cells)
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")

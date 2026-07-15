@@ -1360,10 +1360,9 @@ NOTEBOOKS = {
 # notebook so the sections read as clearly separated teaching blocks. 224px was
 # chosen after comparing several gap sizes in nb00/nb01.
 SECTION_GAP_PX = 224
-# Smaller gap for `### N.` sub-items (e.g. the "More ways data gets messy"
-# list) so consecutive numbered items read as separated blocks without the
-# full major-section break.
-SUB_SECTION_GAP_PX = 120
+# Gap above `### N.` sub-items (e.g. the "More ways data gets messy" list) so
+# consecutive numbered items read as clearly separated blocks.
+SUB_SECTION_GAP_PX = 224
 
 _NUMBERED_HEADING = re.compile(r"^## \d+\.")
 _NUMBERED_SUBHEADING = re.compile(r"^### \d+\.")

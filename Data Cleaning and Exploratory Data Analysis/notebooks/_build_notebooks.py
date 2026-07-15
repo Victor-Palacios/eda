@@ -1650,9 +1650,16 @@ def main() -> None:
     build_datasaurus_summary_image()
     build_merge_diagram_image()
     out_dir = Path(__file__).resolve().parent
+    # Experiment: try a wider 300px gap (both major and sub) on the data-
+    # poisoning and datasaurus notebooks to see how it reads.
+    EXPERIMENT_GAP_PX = 300
+    experiment = {"00_inspect_and_clean.ipynb", "01_datasaurus_always_plot.ipynb"}
     for name, cells in NOTEBOOKS.items():
         cells = hoist_takeaway(strip_mini_labs(cells))
-        cells = add_section_gap(cells, SECTION_GAP_PX, SUB_SECTION_GAP_PX)
+        if name in experiment:
+            cells = add_section_gap(cells, EXPERIMENT_GAP_PX, EXPERIMENT_GAP_PX)
+        else:
+            cells = add_section_gap(cells, SECTION_GAP_PX, SUB_SECTION_GAP_PX)
         nb = notebook(cells)
         path = out_dir / name
         path.write_text(json.dumps(nb, indent=1) + "\n")

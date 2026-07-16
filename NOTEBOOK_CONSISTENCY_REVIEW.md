@@ -16,6 +16,18 @@ admitted −0.353), nb06's corr(baseline, change) = −0.527 and tail drifts
 
 ---
 
+> **Status (2026-07-16):** P1 items 1, 2, 3, 5 and all of P2 (6–10) are
+> **fixed** and pushed. P1 item 4 (`object` vs `str`) is intentionally left —
+> it will be covered live in class. P3 items are open, untouched by request.
+> Notes on the fixes: nb07 §4 now works because the data stores `churned` as
+> 0/1 (the `astype("bool")` is a real conversion); the widened nb07 §6 corr
+> table surfaced a second suspect, `last_login_days_ago` at ≈ 0.83, so the
+> narrative now names both leaks and ties them to §8's drops; the gaming data
+> was regenerated to match the poster (95/4/1 population, revenue shares
+> 51.5/29.1/19.4, median $3.09, mean $18.03 — the cited mean in the prose was
+> updated); nb05's `applicant_pool` label was renamed `rejected_applicants`
+> in the feather file.
+
 ## P1 — narrative contradicts what the student actually sees
 
 ### 1. nb07 §6 "Find suspicious correlations" cannot find the suspect

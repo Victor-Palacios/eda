@@ -637,7 +637,17 @@ survivorship_cells = (
         ),
         md("## 12. Find duplicates with `df.duplicated()`\n\n`duplicated()` flags every row that is an exact copy of an earlier one — duplicates silently double-count whatever you sum or average."),
         code("startups.duplicated().sum()"),
-        md("## 13. Remove duplicates with `df.drop_duplicates()`\n\nRemove duplicates only after checking what they represent."),
+        md(
+            "## 13. Remove duplicates with `df.drop_duplicates()`\n\n"
+            "Remove duplicates only after checking what they represent. "
+            "Here the check pays off: all three copies are *failed* "
+            "startups with no revenue, so none of the revenue statistics "
+            "above are double-counted — what shifts is the row count "
+            "(2,403 → 2,400) and, by a hair, any rate computed over all "
+            "rows, like the survival rate below. Know which of your "
+            "numbers the copies actually touch before deciding how urgent "
+            "the dedupe is."
+        ),
         code(
             'clean = startups.drop_duplicates()\n'
             'print(startups.shape, clean.shape)'
@@ -874,7 +884,7 @@ whales_cells = (
             "revenue per customer, session length, tokens per request, "
             "file sizes, follower counts. Two practical consequences:\n\n"
             "- **Report distributions, not means.** 'The average player "
-            "spends $12.74' is technically true and practically false — "
+            "spends $18' is technically true and practically false — "
             "the *median* player spends about $3 (the 50% row in "
             "`describe()` above). Quote the median, the quartiles, or the "
             "revenue-share table you built.\n"
@@ -922,7 +932,14 @@ collider_cells = (
         ),
         code('apps = pd.read_feather("../data/collider_admissions.feather")\napps.head()'),
         code("apps.info()"),
-        md("## 2. Find the selection clue\n\nA source or status column often reveals how rows entered the table."),
+        md(
+            "## 2. Find the selection clue\n\n"
+            "A source or status column often reveals how rows entered the "
+            "table. Here `data_source` shows this table was stitched "
+            "together from two files — the 1,000 admitted students plus "
+            "the 4,000 rejected applicants — so the *combined* table is "
+            "the full pool, and `admitted` marks who cleared the doorway."
+        ),
         code('apps["data_source"].value_counts()'),
         code('apps["admitted"].value_counts()'),
         md(
@@ -978,10 +995,21 @@ collider_cells = (
         ),
         md(
             "## 6. Compound conditions\n\n"
-            "Real selection rules often combine multiple conditions."
+            "Real doorways stack conditions. `query()` chains filters with "
+            "`and`/`or`, and the row counts show how tight each doorway "
+            "is — `and` narrows, `or` widens, and the `interview_score` "
+            "this file also carries makes a third bar. Every one of these "
+            "counts is a different doorway, and each would manufacture "
+            "its own distortions downstream."
         ),
-        code('apps.query("admitted == True and ability > 0").shape'),
-        code('apps.query("portfolio_score > 1 or ability > 1").shape'),
+        code(
+            'print("admitted and ability > 0:           ",\n'
+            '      len(apps.query("admitted == True and ability > 0")), "rows")\n'
+            'print("strong portfolio or strong ability: ",\n'
+            '      len(apps.query("portfolio_score > 1 or ability > 1")), "rows")\n'
+            'print("admitted and interview_score > 1:   ",\n'
+            '      len(apps.query("admitted == True and interview_score > 1")), "rows")'
+        ),
         md(
             "## 7. Column selection with `df.loc[]`\n\n"
             "We narrow to just the columns that drive the selection so the "
@@ -997,10 +1025,11 @@ collider_cells = (
         code('apps.loc[apps["admitted"] == True, ["ability", "portfolio_score"]].head()'),
         md(
             "## 9. Position selection with `df.iloc[]`\n\n"
-            "When you just want a quick peek at the first few rows and "
-            "columns without naming any of them, `iloc` grabs them by "
-            "position — a fast way to confirm the table matches what the "
-            "label-based `loc` returned above."
+            "`iloc` grabs rows and columns by pure position — here the "
+            "first five rows and first four columns, which lands on the "
+            "ID and the three scores. It is the quick structural peek for "
+            "when you have not yet decided which labels matter; contrast "
+            "it with `loc` above, which picks columns by *name*."
         ),
         code("apps.iloc[:5, :4]"),
         md(
@@ -1110,14 +1139,24 @@ rtm_cells = (
         ),
         md(
             "## 4. Build a both-tails group\n\n"
-            "Concatenate the two extreme tails to compare against the middle."
+            "`pd.concat()` stacks the two extreme tails into one frame so "
+            "we can compare them against everyone else. The payoff to "
+            "look for: both tails drift hard (lowest up, highest down) "
+            "while the untouched middle barely moves — the drift belongs "
+            "to *extremeness*, not to anything that happened to the "
+            "students."
         ),
         code(
-            'extremes = pd.concat([\n'
-            '    scores.sort_values("baseline_score").head(60),\n'
-            '    scores.sort_values("baseline_score").tail(60),\n'
-            '])\n'
-            'extremes.shape'
+            'ranked = scores.sort_values("baseline_score")\n'
+            'low60 = ranked.head(60)\n'
+            'high60 = ranked.tail(60)\n'
+            'extremes = pd.concat([low60, high60])\n'
+            'middle = ranked.iloc[60:-60]\n'
+            '\n'
+            'print("Extremes frame:", extremes.shape)\n'
+            'print(f"Lowest 60 avg change:   {low60[\'change\'].mean():+.2f}")\n'
+            'print(f"Highest 60 avg change:  {high60[\'change\'].mean():+.2f}")\n'
+            'print(f"Middle {len(middle)} avg change: {middle[\'change\'].mean():+.2f}")'
         ),
         md(
             "## 5. Visualize the drift\n\n"
@@ -1233,14 +1272,21 @@ misleading_cells = (
             "**predictor**, **date**, **proxy**, or **leak**."
         ),
         code("list(churn.columns)"),
-        md("## 3. Type audit with `df.dtypes`\n\nTypes reveal disguised dates, booleans, and numbers."),
+        md(
+            "## 3. Type audit with `df.dtypes`\n\n"
+            "Types reveal what loaded wrong: `signup_date` is still text, "
+            "and `churned` came in as bare 0/1 integers. Both work "
+            "mechanically and both hide meaning — the next two sections "
+            "fix them."
+        ),
         code("churn.dtypes"),
         md(
             "## 4. Convert with `df.astype()`\n\n"
-            "We cast `churned` to a real boolean with `astype()` so it "
-            "behaves in filters and math — a yes/no stored as text sorts "
-            "alphabetically and quietly breaks comparisons, so fixing the "
-            "type now prevents wrong answers later."
+            "`churned` loaded as 0/1 integers — fine for arithmetic, but a "
+            "filter like `churn[churn[\"churned\"]]` and every crosstab "
+            "label read better when the column says what it means. "
+            "`astype(\"bool\")` makes the conversion, and the dtype output "
+            "confirms it took."
         ),
         code('churn["churned"] = churn["churned"].astype("bool")\nchurn["churned"].dtype'),
         md(
@@ -1248,28 +1294,56 @@ misleading_cells = (
             "`pd.to_datetime()` turns date text into real datetime values "
             "— until then, 'dates' are just strings that sort "
             "alphabetically and cannot be compared, subtracted, or "
-            "bucketed by year."
-        ),
-        code('churn["signup_date"] = pd.to_datetime(churn["signup_date"])\nchurn["signup_date"].dtype'),
-        md(
-            "## 6. Find suspicious correlations\n\n"
-            "A variable can look powerful because it leaks future information."
+            "bucketed by year. The first payoff is immediate: min and max "
+            "give the observation window, which you need for the leakage "
+            "audit below (a column measured after this window cannot be a "
+            "predictor)."
         ),
         code(
-            'numeric = churn.select_dtypes(include="number")\n'
-            'numeric.corr(numeric_only=True).round(3)'
+            'churn["signup_date"] = pd.to_datetime(churn["signup_date"])\n'
+            'print(churn["signup_date"].dtype)\n'
+            'print("observation window:", churn["signup_date"].min().date(),\n'
+            '      "to", churn["signup_date"].max().date())'
         ),
         md(
-            "Pay special attention to anything that correlates strongly with "
-            "`churned`. Ask: *could this value have been known at decision "
-            "time, or is it a consequence of churn?*"
+            "## 6. Find suspicious correlations\n\n"
+            "A variable can look powerful because it leaks future "
+            "information. We correlate every numeric column **and** the "
+            "two booleans — cast to numbers, because "
+            "`select_dtypes(\"number\")` alone would silently drop them, "
+            "hiding exactly the columns we suspect. Read down the "
+            "`churned` column: two features stand out far above the "
+            "honest predictors."
+        ),
+        code(
+            'numeric = churn.select_dtypes(include=["number", "bool"]).astype(float)\n'
+            'numeric.corr().round(3)'
+        ),
+        md(
+            "Two numbers leap out of the `churned` column: "
+            "`last_login_days_ago` at ≈ 0.83 and `refund_after_churn` at "
+            "≈ 0.56, while the honest predictors (age, tenure, tickets) "
+            "all stay below 0.2. Ask of each: *could this value have been "
+            "known at decision time, or is it a consequence of churn?* "
+            "Days since last login is measured at extraction time — "
+            "*after* churners stopped logging in — and a refund happens "
+            "after churn. Both are consequences dressed as predictors; "
+            "the next section confirms the refund case, and section 8 "
+            "drops them both."
         ),
         md(
             "## 7. Cross-check a suspect with the outcome\n\n"
             "`refund_after_churn` smells like a leak — by name alone."
         ),
         code('pd.crosstab(churn["churned"], churn["refund_after_churn"])'),
-        md("If refunds only happen *after* churn, this column can perfectly predict the outcome — but only because the outcome already happened."),
+        md(
+            "Read the crosstab one direction at a time. Most churners got "
+            "no refund (304 of 471), so a missing refund proves nothing. "
+            "But **every one of the 167 refunds belongs to a churner** — "
+            "when the flag is True, churn is certain, because the refund "
+            "only exists *after* the churn happened. That one-way "
+            "perfection is the signature of a leak."
+        ),
         md(
             "## 8. Drop columns with `df.drop()`\n\n"
             "Dropping columns is an **analytical decision** that should be "
@@ -1287,7 +1361,11 @@ misleading_cells = (
         ),
         md(
             "## 9. Drop rows vs. drop columns\n\n"
-            "Same verb, very different consequence."
+            "Same verb, very different consequence. The row count drops by "
+            "122 here because that is how many customers have a missing "
+            "`age` (check the non-null counts in `info()` above) — "
+            "`dropna()` throws away whole customers to rescue one column, "
+            "while dropping a column keeps every customer."
         ),
         code(
             'print("Drop rows with any NA:  ", churn.dropna().shape)\n'
@@ -1322,10 +1400,12 @@ misleading_cells = (
             "## Why this matters to an AI engineer\n\n"
             "Leakage is the most common way a machine-learning project "
             "fails *silently*. A leaky feature makes the offline model "
-            "look outstanding — `refund_after_churn` can predict churn "
-            "almost perfectly — and then the model collapses in "
-            "production, because at prediction time the churn has not "
-            "happened yet and the feature's value does not exist.\n\n"
+            "look outstanding — every refund in this data belongs to a "
+            "customer who already churned, so `refund_after_churn` hands "
+            "the model a free, certain answer for a third of its churners "
+            "— and then the model collapses in production, because at "
+            "prediction time the churn has not happened yet and the "
+            "feature's value does not exist.\n\n"
             "No error message will ever tell you this. The offline "
             "metrics get *better* as the leak gets worse — which is "
             "exactly backwards. The only defense is the audit you just "
